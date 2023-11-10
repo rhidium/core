@@ -7,5 +7,5 @@
   "theme": "default",
   "plugin": [ "typedoc-plugin-djs-links" ],
   "tsconfig": "./tsconfig.json",
-  "includeVersion": true
+  "includeVersion": false
 }
