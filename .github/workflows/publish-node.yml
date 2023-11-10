@@ -26,7 +26,6 @@ jobs:
       # NPM doesn't install devDependencies when a user downloads our package
       # but it sill counts them in the project dependency count.
       - run: npm pkg delete devDependencies
-      - run: npm prune --omit=dev
       - run: npm run build
       - run: npm publish --access public
         env:
