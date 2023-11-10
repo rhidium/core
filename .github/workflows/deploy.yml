@@ -24,7 +24,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.SSH_PORT }}
           source: "."
-          target: "/var/www/ts-discord-bots"
+          target: "/var/www/@rhidium/framework"
 
       - name: Deploy to Production
         uses: appleboy/ssh-action@master
@@ -38,7 +38,7 @@ jobs:
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
 
-            cd /var/www/ts-discord-bots
+            cd /var/www/@rhidium/framework
 
             npm ci
             npm run docs

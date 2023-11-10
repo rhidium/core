@@ -1,7 +1,7 @@
 {
-  "name": "@ts-discord-bots/framework",
-  "version": "0.0.2",
-  "description": "Quickly and easily create powerful Discord bots using a plug-and-play modules",
+  "name": "@rhidium/framework",
+  "version": "0.0.1",
+  "description": "Quickly and easily create powerful Discord bots using plug-and-play modules",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -24,16 +24,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ts-discord-bots/ts-discord-bots.git"
+    "url": "git+https://github.com/rhidium/framework.git"
   },
   "author": {
     "name": "Richard Hillebrand (Mirasaki)"
   },
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ts-discord-bots/ts-discord-bots/issues"
+    "url": "https://github.com/rhidium/framework/issues"
   },
-  "homepage": "https://github.com/ts-discord-bots/ts-discord-bots#readme",
+  "homepage": "https://github.com/rhidium/framework#readme",
   "devDependencies": {
     "@commitlint/cli": "^18.2.0",
     "@commitlint/config-conventional": "^18.1.0",

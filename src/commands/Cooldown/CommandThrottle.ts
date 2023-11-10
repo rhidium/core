@@ -61,7 +61,7 @@ export interface CommandThrottleOptions {
    * using persistent command cooldown middleware. We have an example
    * of this on the main repository
    * 
-   * @see https://github.com/ts-discord-bots/ts-discord-template
+   * @see https://github.com/rhidium/ts-discord-template
    */
   persistent?: boolean;
 }
