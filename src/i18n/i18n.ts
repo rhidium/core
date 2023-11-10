@@ -8,8 +8,13 @@ export const dutchLibrary = nlLib;
 
 export const defaultNS = 'lib';
 
-export const init = (debugEnabled = false) =>
+export const isInitialized = () => Lang.isInitialized;
+
+export const init = (debugEnabled = false) => {
+  if (isInitialized()) return;
   Lang.init({
+    // We don't specify lng, as language is determined
+    // on Discord\'s side by the user\'s locale.
     debug: debugEnabled,
     fallbackLng: 'en',
     defaultNS,
@@ -22,5 +27,7 @@ export const init = (debugEnabled = false) =>
       },
     },
   });
+};
+
 
 export default Lang;
