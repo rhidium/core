@@ -731,7 +731,7 @@ export class BaseCommand<I extends BaseInteraction = BaseInteraction> {
     // Make sure the command is enabled
     if (!this.matchEnabledConstraints(interaction, client)) return false;
 
-    // Perform required framework checks
+    // Perform required internal checks
     // First check is internal permission level -
     // they don't have to know anything about the
     // command if they don't have permission
