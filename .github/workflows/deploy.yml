@@ -24,7 +24,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.SSH_PORT }}
           source: "."
-          target: "/var/www/@rhidium/framework"
+          target: "/var/www/@rhidium/core"
 
       - name: Deploy to Production
         uses: appleboy/ssh-action@master
@@ -38,7 +38,7 @@ jobs:
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
 
-            cd /var/www/@rhidium/framework
+            cd /var/www/@rhidium/core
 
             npm ci
             npm run docs

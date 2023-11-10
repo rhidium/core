@@ -1,5 +1,5 @@
 {
-  "name": "@rhidium/framework",
+  "name": "@rhidium/core",
   "version": "0.0.1",
   "description": "Quickly and easily create powerful Discord bots using plug-and-play modules",
   "main": "dist/index.js",
@@ -24,16 +24,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rhidium/framework.git"
+    "url": "git+https://github.com/rhidium/core.git"
   },
   "author": {
     "name": "Richard Hillebrand (Mirasaki)"
   },
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/rhidium/framework/issues"
+    "url": "https://github.com/rhidium/core/issues"
   },
-  "homepage": "https://github.com/rhidium/framework#readme",
+  "homepage": "https://github.com/rhidium/core#readme",
   "devDependencies": {
     "@commitlint/cli": "^18.2.0",
     "@commitlint/config-conventional": "^18.1.0",

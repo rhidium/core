@@ -1,5 +1,5 @@
 {
-  "name": "Rhidium Framework",
+  "name": "Rhidium Core",
   "entryPoints": [
     "./src/index.namespaces.ts",
   ],
