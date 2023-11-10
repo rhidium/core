@@ -1,0 +1,11 @@
+{
+  "name": "TypeScript Discord Template",
+  "entryPoints": [
+    "./src/index.namespaces.ts",
+  ],
+  "out": "./docs",
+  "theme": "default",
+  "plugin": [ "typedoc-plugin-djs-links" ],
+  "tsconfig": "./tsconfig.json",
+  "includeVersion": true
+}

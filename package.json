@@ -1,0 +1,89 @@
+{
+  "name": "@ts-discord-bots/framework",
+  "version": "0.0.2",
+  "description": "Quickly and easily create powerful Discord bots using a plug-and-play modules",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean:docs": "rimraf ./docs",
+    "clean:dist": "rimraf ./dist",
+    "clean:modules": "rimraf ./node_modules",
+    "clean": "npm run clean:dist && npm run clean:modules && npm run clean:docs",
+    "prebuild": "npm run clean:dist",
+    "build": "tsup",
+    "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}'",
+    "lint:fix": "eslint --fix 'src/**/*.{ts,tsx,js,jsx}'",
+    "docs": "npx typedoc",
+    "docs:watch": "npx typedoc --watch",
+    "dev": "npm run start:dev",
+    "start:dev": "ts-node-dev --respawn --notify --transpile-only src/index.ts --NODE_ENV=development",
+    "commit": "cz",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ts-discord-bots/ts-discord-bots.git"
+  },
+  "author": {
+    "name": "Richard Hillebrand (Mirasaki)"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ts-discord-bots/ts-discord-bots/issues"
+  },
+  "homepage": "https://github.com/ts-discord-bots/ts-discord-bots#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^18.2.0",
+    "@commitlint/config-conventional": "^18.1.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^11.1.0",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.2.1",
+    "@semantic-release/npm": "^11.0.1",
+    "@semantic-release/release-notes-generator": "^12.1.0",
+    "@swc/core": "^1.3.96",
+    "@types/common-tags": "^1.8.4",
+    "@types/module-alias": "^2.0.4",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "cpy-cli": "^5.0.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.53.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.0.2",
+    "module-alias": "^2.2.3",
+    "semantic-release": "^22.0.7",
+    "ts-node-dev": "^2.0.0",
+    "tsup": "^7.2.0",
+    "typedoc": "^0.25.3",
+    "typedoc-plugin-djs-links": "^2.1.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "colors": "^1.4.0",
+    "common-tags": "^1.8.2",
+    "cron": "^3.1.6",
+    "deep-object-diff": "^1.1.9",
+    "discord-hybrid-sharding": "^2.1.3",
+    "discord.js": "^14.13.0",
+    "i18next": "^23.6.0",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json}": [
+      "eslint --fix"
+    ]
+  },
+  "files": [
+    "dist",
+    "locales"
+  ]
+}

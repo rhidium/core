@@ -1,0 +1,8 @@
+node_modules
+dist
+docs
+
+TODO.md
+
+# Optional eslint cache
+.eslintcache
