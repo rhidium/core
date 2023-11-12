@@ -4,17 +4,18 @@ import {readFileSync} from 'fs';
 import { IntentsBitField } from 'discord.js';
 import { Client, CommandMiddleware, Directories, GlobalMiddleware, GlobalMiddlewareOptions } from '..';
 
-export type OfficialModule = 'moderation-module' | 'module-template'
+export type OfficialModule = 'moderation' | 'module-template' | 'manage-modules';
 
 export const officialModules: OfficialModule[] = [
-  'moderation-module',
+  'moderation',
   'module-template',
+  'manage-modules',
 ];
 
 export type SourceCodeDirectories = {
   sourceFolder: string;
   mitLicense: string;
-  packageJson: string;
+  packageJson?: string;
 }
 
 export interface ModuleOptions {
@@ -24,6 +25,7 @@ export interface ModuleOptions {
   globalMiddleware?: GlobalMiddlewareOptions;
   intents?: IntentsBitField[];
   extensions?: Record<string, unknown>;
+  disabled?: boolean;
 }
 
 /**
@@ -37,18 +39,22 @@ export interface ModuleOptions {
  */
 export class Module {
   name: string;
+  disabled: boolean;
   version: string;
   tag: string;
   directories: Required<Client['directories']>;
-  sourceCode: Required<SourceCodeDirectories>;
+  sourceCode: SourceCodeDirectories;
   globalMiddleware: GlobalMiddleware;
   intents: IntentsBitField[] = [];
   extensions: Record<string, unknown> = {};
   constructor(options: ModuleOptions) {
     this.name = options.name;
+    this.disabled = options.disabled ?? false;
 
     this.sourceCode = options.sourceCode;
-    const pkgString = readFileSync(this.sourceCode.packageJson, 'utf-8');
+    const pkgString = this.sourceCode.packageJson
+      ? readFileSync(this.sourceCode.packageJson, 'utf-8')
+      : '{"version": "0.0.0"}';
     const pkg = JSON.parse(pkgString);
     this.version = pkg.version ?? '0.0.0';
 
@@ -160,7 +166,9 @@ export class Module {
   async eject(client: Client, dirPath: string) {
     client.logger.debug(`${this.tag} Ejecting source code to ${dirPath}`);
     const license = await readFile(this.sourceCode.mitLicense, 'utf-8');
-    const pkgString = await readFile(this.sourceCode.packageJson, 'utf-8');
+    const pkgString = this.sourceCode.packageJson
+      ? await readFile(this.sourceCode.packageJson, 'utf-8')
+      : '{"dependencies": {}, "devDependencies": {}}';
 
     client.logger.debug(`${this.tag} EJECT Creating module directory ${dirPath}`);
     await mkdir(dirPath, { recursive: true });

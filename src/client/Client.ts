@@ -41,6 +41,7 @@ import {
   Directories,
   InteractionUtils,
   Module,
+  OfficialModule,
   officialModules,
 } from '..';
 import Lang from '../i18n/i18n';
@@ -157,6 +158,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
     };
     this.token = options.token;
     this.modules = options.modules ?? [];
+    this.modules = this.modules.filter((e) => e.disabled === false);
     this.applicationId = options.applicationId;
     this.defaultCommandThrottling = new CommandThrottle(
       options.defaultCommandThrottling ?? {},
@@ -228,12 +230,33 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
     ].join('\n'));
   };
 
-  initialize(): this {
-    this.printVanity();
-    this.loadModules();
+  // [DEV]
+  get resolvedModuleDirectories () {
+    return this.modules.map((module) => {
+      const { name, directories } = module;
+      const isOfficialModule = officialModules.includes(name as OfficialModule);
+      console.log(name, isOfficialModule);
+      // const withNpmPath = (directories: Directories) => typeof directories === 'string'
+      //   ? isOfficialModule ? `node_modules/@rhidium/${name}/${directories}` : directories
+      //   : directories.map(
+      //     (e) => isOfficialModule ? `node_modules/@rhidium/${name}/${e}` : e
+      //   );
+      return directories;
+      // return {
+      //   chatInputs: withNpmPath(directories.chatInputs ?? []),
+      //   autoCompletes: withNpmPath(directories.autoCompletes ?? []),
+      //   componentCommands: withNpmPath(directories.componentCommands ?? []),
+      //   jobs: withNpmPath(directories.jobs ?? []),
+      //   listeners: withNpmPath(directories.listeners ?? []),
+      //   messageContextMenus: withNpmPath(directories.messageContextMenus ?? []),
+      //   userContextMenus: withNpmPath(directories.userContextMenus ?? []),
+      // };
+    });
+  }
 
-    const moduleDirectories = this.modules.map((module) => module.directories);
-    const mergedDirectories: CommandManagerCommandsOptions = {
+  get mergedDirectories () {
+    const moduleDirectories = this.resolvedModuleDirectories;
+    return {
       chatInputs: moduleDirectories.map((dir) => dir.chatInputs)
         .flat().concat(...(this.directories.chatInputs ?? [])),
       autoCompletes: moduleDirectories.map((dir) => dir.autoCompletes)
@@ -249,8 +272,12 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       userContextMenus: moduleDirectories.map((dir) => dir.userContextMenus)
         .flat().concat(...(this.directories.userContextMenus ?? [])),
     };
+  }
 
-    this.commandManager.initialize(mergedDirectories);
+  initialize(): this {
+    this.printVanity();
+    this.loadModules();
+    this.commandManager.initialize(this.mergedDirectories);
     this.jobManager = new ClientJobManager(this, this.commandManager.jobs.toJSON());
     this.registerEssentialListeners();
     return this;
