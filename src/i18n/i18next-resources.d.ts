@@ -31,6 +31,13 @@ interface Resources {
       missingInitialReply: string;
       isNotUserPaginator: string;
       errorWhileReplyingToInteraction: string;
+      confirmationRequired: string;
+      promptConfirmation: string;
+      confirmationCancelled: string;
+      confirmationAccepted: string;
+      confirmationExpired: string;
+      confirmationButtonLabel: string;
+      cancelButtonLabel: string;
     };
   };
 }

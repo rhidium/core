@@ -40,6 +40,8 @@ import {
   CommandMiddlewareOptions,
   Directories,
   InteractionUtils,
+  Module,
+  officialModules,
 } from '..';
 import Lang from '../i18n/i18n';
 
@@ -98,6 +100,7 @@ export interface ClientOptions {
   pkg?: Record<string, unknown>;
   extensions?: Record<string, unknown>;
   globalMiddleware?: GlobalMiddlewareOptions;
+  modules?: Module[];
 }
 
 export interface RequiredClientOptions<Ready extends boolean = boolean> {
@@ -118,7 +121,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
   readonly colors: UserColors;
   readonly embeds: Embeds;
   readonly clientEmojis: IEmojis;
-  readonly directories: CommandManagerCommandsOptions;
+  directories: CommandManagerCommandsOptions;
   readonly extendedOptions: DiscordClientOptions &
     Partial<ClientOptions> &
     RequiredClientOptions<Ready>;
@@ -136,6 +139,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
   pkg: Record<string, unknown> = pkg;
   extensions: Record<string, unknown> = {};
   globalMiddleware: GlobalMiddleware;
+  modules: Module[];
 
   constructor(
     /** Your discord.js client - doesn't have to be logged in or initialized */
@@ -152,6 +156,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       commandData: debug?.commandData ?? false,
     };
     this.token = options.token;
+    this.modules = options.modules ?? [];
     this.applicationId = options.applicationId;
     this.defaultCommandThrottling = new CommandThrottle(
       options.defaultCommandThrottling ?? {},
@@ -225,11 +230,62 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
 
   initialize(): this {
     this.printVanity();
-    this.commandManager.initialize(this.directories);
+    this.loadModules();
+
+    const moduleDirectories = this.modules.map((module) => module.directories);
+    const mergedDirectories: CommandManagerCommandsOptions = {
+      chatInputs: moduleDirectories.map((dir) => dir.chatInputs)
+        .flat().concat(...(this.directories.chatInputs ?? [])),
+      autoCompletes: moduleDirectories.map((dir) => dir.autoCompletes)
+        .flat().concat(...(this.directories.autoCompletes ?? [])),
+      componentCommands: moduleDirectories.map((dir) => dir.componentCommands)
+        .flat().concat(...(this.directories.componentCommands ?? [])),
+      jobs: moduleDirectories.map((dir) => dir.jobs)
+        .flat().concat(...(this.directories.jobs ?? [])),
+      listeners: moduleDirectories.map((dir) => dir.listeners)
+        .flat().concat(...(this.directories.listeners ?? [])),
+      messageContextMenus: moduleDirectories.map((dir) => dir.messageContextMenus)
+        .flat().concat(...(this.directories.messageContextMenus ?? [])),
+      userContextMenus: moduleDirectories.map((dir) => dir.userContextMenus)
+        .flat().concat(...(this.directories.userContextMenus ?? [])),
+    };
+
+    this.commandManager.initialize(mergedDirectories);
     this.jobManager = new ClientJobManager(this, this.commandManager.jobs.toJSON());
     this.registerEssentialListeners();
     return this;
   }
+
+  loadModules = () => {
+    this.logger.debug('Loading modules');
+    this.loadNPMModules();
+    this.modules.forEach((module) => {
+      module.register(this);
+    });
+  };
+
+  loadNPMModules = () => {
+    this.logger.debug('[NPM Module] Resolving end-user modules from NPM registry');
+    for (const moduleName of officialModules) {
+      let npmModule;
+      try {
+        npmModule = require(`@rhidium/${moduleName}`);
+        if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
+          throw new Error([
+            `Official Module "${moduleName}" is not an instance of Module,`,
+            'this should never happen and was implemented as a fail-safe,',
+            'please create a GitHub issue with details.',
+          ].join(' '));
+        }
+        this.logger.debug(`[NPM Module] Loaded Official Module "${moduleName}"`);
+        this.modules.push(npmModule);
+      }
+      catch {
+        this.logger.debug(`[NPM Module] Official Module "${moduleName}" not installed`);
+        continue;
+      }
+    }
+  };
 
   registerEssentialListeners = () => {
     this.once(Events.ClientReady, (c) => {

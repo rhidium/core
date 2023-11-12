@@ -73,19 +73,19 @@ export type DeployCommandsOptions = FetchApplicationCommandOptions &
 
 export interface CommandManagerCommandsOptions {
   /** Absolute or relative path(s) to the folders/directories that hold your client listeners */
-  listenerDirs?: Directories;
+  listeners?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your chat-input commands */
-  chatInputCommandDirs?: Directories;
+  chatInputs?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your auto-complete option handlers */
-  autoCompleteHandlerDirs?: Directories;
+  autoCompletes?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your user-context commands */
-  userContextMenuDirs?: Directories;
+  userContextMenus?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your message-context commands */
-  messageContextMenuDirs?: Directories;
+  messageContextMenus?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your component commands */
-  componentCommandDirs?: Directories;
+  componentCommands?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your jobs */
-  jobDirs?: Directories;
+  jobs?: Directories;
 }
 
 export interface CommandManagerOptions {
@@ -336,8 +336,9 @@ export class CommandManager {
 
         // Only work with internal commands
         if (!isCommand(cmd)) {
+          const fileDirectoryName = path.basename(path.dirname(cmdPath));
           const isExcluded = excludedCommandNames.some(
-            (e) => cmdPath.endsWith(`${e}.js`) || cmdPath.endsWith(`${e}.ts`)
+            (e) => cmdPath.endsWith(`${e}.js`) || cmdPath.endsWith(`${e}.ts`) || fileDirectoryName === e,
           );
           if (!isExcluded) this.client.logger.warn(
             // Not CommandType - can't use sourceFile or sourceFileStackTrace, .etc
@@ -429,66 +430,66 @@ export class CommandManager {
   }
 
   initialize = ({
-    listenerDirs,
-    chatInputCommandDirs,
-    autoCompleteHandlerDirs,
-    userContextMenuDirs,
-    messageContextMenuDirs,
-    componentCommandDirs,
-    jobDirs,
+    listeners,
+    chatInputs,
+    autoCompletes,
+    userContextMenus,
+    messageContextMenus,
+    componentCommands,
+    jobs,
   }: CommandManagerCommandsOptions) => {
-    if (listenerDirs) {
-      this.directories.listenerDirs = listenerDirs;
-      const listeners = this.resolveListeners(
-        listenerDirs,
+    if (listeners) {
+      this.directories.listeners = listeners;
+      const resolvedListeners = this.resolveListeners(
+        listeners,
         new Collection<string, ClientEventListener>(),
       );
-      this.listeners = listeners;
+      this.listeners = resolvedListeners;
     }
-    if (chatInputCommandDirs) {
-      this.directories.chatInputCommandDirs = chatInputCommandDirs;
+    if (chatInputs) {
+      this.directories.chatInputs = chatInputs;
       const commands = this.loadCommandCollection(
-        chatInputCommandDirs,
+        chatInputs,
         new Collection<string, ChatInputCommand>(),
       );
       this.chatInput = commands;
     }
-    if (autoCompleteHandlerDirs) {
-      this.directories.autoCompleteHandlerDirs = autoCompleteHandlerDirs;
-      const autoCompletes = this.resolveAutoCompletes(
-        autoCompleteHandlerDirs,
+    if (autoCompletes) {
+      this.directories.autoCompletes = autoCompletes;
+      const commands = this.resolveAutoCompletes(
+        autoCompletes,
         new Collection<string, AutoCompleteOption>(),
       );
-      this.autoComplete = autoCompletes;
+      this.autoComplete = commands;
     }
-    if (userContextMenuDirs) {
-      this.directories.userContextMenuDirs = userContextMenuDirs;
+    if (userContextMenus) {
+      this.directories.userContextMenus = userContextMenus;
       const commands = this.loadCommandCollection(
-        userContextMenuDirs,
+        userContextMenus,
         new Collection<string, UserContextCommand>(),
       );
       this.userContextMenus = commands;
     }
-    if (messageContextMenuDirs) {
-      this.directories.messageContextMenuDirs = messageContextMenuDirs;
+    if (messageContextMenus) {
+      this.directories.messageContextMenus = messageContextMenus;
       const commands = this.loadCommandCollection(
-        messageContextMenuDirs,
+        messageContextMenus,
         new Collection<string, MessageContextCommand>(),
       );
       this.messageContextMenus = commands;
     }
-    if (componentCommandDirs) {
-      this.directories.componentCommandDirs = componentCommandDirs;
+    if (componentCommands) {
+      this.directories.componentCommands = componentCommands;
       const commands = this.loadCommandCollection(
-        componentCommandDirs,
+        componentCommands,
         new Collection<string, ComponentCommandBase>(),
       );
       this.componentCommands = commands;
     }
-    if (jobDirs) {
-      this.directories.jobDirs = jobDirs;
-      const jobs = this.resolveJobs(jobDirs, new Collection());
-      this.jobs = jobs;
+    if (jobs) {
+      this.directories.jobs = jobs;
+      const loadedJobs = this.resolveJobs(jobs, new Collection());
+      this.jobs = loadedJobs;
     }
   };
 
