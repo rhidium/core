@@ -1,18 +1,28 @@
 import {
+  APIActionRowComponent,
+  APIActionRowComponentTypes,
+  APIMessageActionRowComponent,
   ActionRowBuilder,
+  ActionRowComponentData,
+  ActionRowData,
   AnyComponentBuilder,
   BaseInteraction,
   BaseMessageOptions,
+  BaseSelectMenuBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   ChannelType,
+  ChatInputCommandInteraction,
   ComponentType,
   DiscordAPIError,
   DiscordjsError,
   InteractionReplyOptions,
+  JSONEncodable,
   RepliableInteraction,
+  SlashCommandBooleanOption,
 } from 'discord.js';
-import { DiscordConstants, UnitConstants } from '../constants';
+import { DiscordConstants, InteractionConstants, UnitConstants } from '../constants';
 import { Client } from '../client';
 import { AvailableGuildInteraction } from '../commands/Controllers';
 import Lang from '../i18n/i18n';
@@ -20,6 +30,21 @@ import Lang from '../i18n/i18n';
 export interface InteractionReplyDynamicOptions {
   preferFollowUp?: boolean;
 }
+
+export type PromptConfirmationOptions = {
+  client: Client,
+  interaction: RepliableInteraction,
+  content?: InteractionReplyOptions,
+  options?: InteractionReplyDynamicOptions,
+  onConfirm?: (interaction: ButtonInteraction) => void | Promise<void>,
+  onCancel?: (interaction: ButtonInteraction) => void | Promise<void>,
+  shouldReplyOnConfirm?: boolean,
+  shouldReplyOnCancel?: boolean,
+  removeComponents?: boolean,
+  disableComponents?: boolean,
+  removeEmbeds?: boolean,
+  removeFiles?: boolean,
+};
 
 /**
    * Resolves the applicable reply function for the given interaction
@@ -338,6 +363,156 @@ const paginator = async (
   });
 };
 
+const disableComponents = (
+  components: (
+    AnyComponentBuilder
+    | APIActionRowComponent<APIMessageActionRowComponent>
+    | JSONEncodable<APIActionRowComponent<APIMessageActionRowComponent>>
+    | ActionRowData<JSONEncodable<APIActionRowComponentTypes> | ActionRowComponentData>
+  )[]
+) => components.map((component) => {
+  if (component instanceof ActionRowBuilder) {
+    for (const innerComponent of component.components) {
+      if (
+        innerComponent instanceof ButtonBuilder
+        || innerComponent instanceof BaseSelectMenuBuilder
+      ) innerComponent.setDisabled(true);
+    }
+  }
+  return component;
+});
+
+const slashConfirmationOption = new SlashCommandBooleanOption()
+  .setName('confirmation')
+  .setDescription('Are you sure you want to perform this action?')
+  .setRequired(false);
+
+const slashConfirmationOptionHandler = (
+  client: Client,
+  interaction: ChatInputCommandInteraction,
+): boolean => {
+  const value = interaction.options.getBoolean(slashConfirmationOption.name);
+  if (!value) {
+    InteractionUtils.replyDynamic(client, interaction, {
+      content: Lang.t('commands.confirmationRequired'),
+      ephemeral: true,
+    });
+    return false;
+  }
+  return true;
+};
+
+const confirmationButtonRow = (client: Client) => new ActionRowBuilder<ButtonBuilder>().addComponents(
+  new ButtonBuilder()
+    .setCustomId(InteractionConstants.CONFIRMATION_BUTTON_CONFIRM_ID)
+    .setLabel(Lang.t('commands.confirmationButtonLabel'))
+    .setEmoji(client.clientEmojis.success)
+    .setStyle(ButtonStyle.Success),
+  new ButtonBuilder()
+    .setCustomId(InteractionConstants.CONFIRMATION_BUTTON_CANCEL_ID)
+    .setLabel(Lang.t('commands.cancelButtonLabel'))
+    .setEmoji(client.clientEmojis.error)
+    .setStyle(ButtonStyle.Secondary),
+);
+
+const promptConfirmation = async ({
+  client,
+  interaction,
+  content,
+  options,
+  onConfirm,
+  onCancel,
+  shouldReplyOnConfirm = false,
+  shouldReplyOnCancel = true,
+  removeComponents = true,
+  disableComponents = true,
+  removeEmbeds = true,
+  removeFiles = true,
+}: PromptConfirmationOptions): Promise<RepliableInteraction | false | 'expired'> => {
+  if (!content) content = {};
+  if (!content.components) content.components = [];
+  if (!content.embeds) content.embeds = [];
+  if (!content.files) content.files = [];
+
+  const newEmbeds = removeEmbeds ? [] : content.embeds;
+  const newFiles = removeFiles ? [] : content.files;
+  const confirmationRow = confirmationButtonRow(client);
+  const components = content.components.length
+    ? [ ...content.components, confirmationRow ]
+    : [ confirmationRow ];
+
+  const message = await InteractionUtils.replyDynamic(client, interaction, {
+    content: Lang.t('commands.promptConfirmation'),
+    ...content,
+    ...options,
+    components,
+    fetchReply: true,
+  });
+
+  if (!message) {
+    InteractionUtils.replyDynamic(client, interaction, {
+      content: Lang.t('commands.missingInitialReply'),
+      ephemeral: true,
+    });
+    return false;
+  }
+
+  const collector = message.createMessageComponentCollector({
+    componentType: ComponentType.Button,
+    time: UnitConstants.MS_IN_ONE_MINUTE,
+  });
+
+  return await new Promise<RepliableInteraction | false | 'expired'>((resolve) => {
+    collector.on('collect', async (button) => {
+      if (button.user.id !== interaction.user.id) {
+        InteractionUtils.replyDynamic(client, interaction, {
+          content: Lang.t('commands.isNotComponentUser'),
+          ephemeral: true,
+        });
+        return;
+      }
+  
+      if (button.customId === InteractionConstants.CONFIRMATION_BUTTON_CONFIRM_ID) {
+        if (shouldReplyOnConfirm) await button.deferUpdate();
+        if (typeof onConfirm === 'function') await onConfirm(button);
+        if (disableComponents) InteractionUtils.disableComponents(components);
+        if (shouldReplyOnConfirm) await InteractionUtils.replyDynamic(client, button, {
+          content: Lang.t('commands.confirmationAccepted'),
+          embeds: newEmbeds,
+          files: newFiles,
+          components: removeComponents ? [] : components,
+        });
+        resolve(button);
+      }
+  
+      if (button.customId === InteractionConstants.CONFIRMATION_BUTTON_CANCEL_ID) {
+        if (shouldReplyOnCancel) await button.deferUpdate();
+        if (typeof onCancel === 'function') await onCancel(button);
+        if (disableComponents) InteractionUtils.disableComponents(components);
+        if (shouldReplyOnCancel) await InteractionUtils.replyDynamic(client, button, {
+          content: Lang.t('commands.confirmationCancelled'),
+          embeds: newEmbeds,
+          files: newFiles,
+          components: removeComponents ? [] : components,
+        });
+        resolve(false);
+      }
+    });
+
+    collector.on('end', async (collected) => {
+      if (collected.size) return;
+      InteractionUtils.disableComponents(components);
+      await InteractionUtils.replyDynamic(client, interaction, {
+        content: Lang.t('commands.confirmationExpired'),
+        embeds: newEmbeds,
+        files: newFiles,
+        components: components,
+      });
+      resolve('expired');
+    });
+  });
+};
+
 export class InteractionUtils {
   static readonly replyFn = replyFn;
   static readonly replyDynamic = replyDynamic;
@@ -346,4 +521,9 @@ export class InteractionUtils {
   static readonly requireGuild = requireGuild;
   static readonly requireAvailableGuild = requireAvailableGuild;
   static readonly paginator = paginator;
+  static readonly disableComponents = disableComponents;
+  static readonly slashConfirmationOption = slashConfirmationOption;
+  static readonly slashConfirmationOptionHandler = slashConfirmationOptionHandler;
+  static readonly confirmationButtonRow = confirmationButtonRow;
+  static readonly promptConfirmation = promptConfirmation;
 }
