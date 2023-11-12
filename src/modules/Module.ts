@@ -181,7 +181,7 @@ export class Module {
     await mkdir(dirPath, { recursive: true });
 
     const sourcePath = this.official
-      ? `./node_modules/@rhidium/${this.name}/${this.sourceCode.sourceFolder}`
+      ? `./node_modules/${this.name}/${this.sourceCode.sourceFolder}`
       : this.sourceCode.sourceFolder;
     client.logger.debug(`${this.tag} EJECT Copying source code to ${dirPath}`);
     fse.copySync(sourcePath, dirPath, { overwrite: true });
@@ -210,7 +210,7 @@ export class Module {
       masterPkg.devDependencies[name as string] = version;
       dependenciesAdded++;
     }
-    if (this.official) delete masterPkg.dependencies[`@rhidium/${this.name}`];
+    if (this.official) delete masterPkg.dependencies[`${this.name}`];
     
     // This step triggers re-build in development
     client.logger.debug(`${this.tag} EJECT Resolved ${dependenciesAdded} dependencies`);

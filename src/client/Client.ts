@@ -237,9 +237,9 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       const isOfficialModule = officialModules.includes(name as OfficialModule);
       console.log(name, isOfficialModule);
       // const withNpmPath = (directories: Directories) => typeof directories === 'string'
-      //   ? isOfficialModule ? `node_modules/@rhidium/${name}/${directories}` : directories
+      //   ? isOfficialModule ? `node_modules/${name}/${directories}` : directories
       //   : directories.map(
-      //     (e) => isOfficialModule ? `node_modules/@rhidium/${name}/${e}` : e
+      //     (e) => isOfficialModule ? `node_modules/${name}/${e}` : e
       //   );
       return directories;
       // return {
@@ -297,7 +297,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       let npmModule;
       try {
         if (this.modules.find((e) => e.name === moduleName)) continue;
-        npmModule = require(`@rhidium/${moduleName}`);
+        npmModule = require(moduleName);
         if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
           throw new Error([
             `Official Module "${moduleName}" is not an instance of Module,`,
