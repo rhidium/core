@@ -34,6 +34,12 @@ The Rhidium framework is designed for creating Discord bots with ease. It is bui
 
 The framework comes with a rich ecosystem of plug-and-play modules, offering community-maintained integrations to simplify your bot development process. From internal behavior like persistent-cooldown to a full-fledged moderation module, we've got you covered.
 
+- Solves several problems with existing module-based Discord bots/frameworks
+- Made for end-users: Install packages using a single command
+- And for developers: `#eject` the source-code of existing modules to edit or continue development
+  - Enjoy a rich ecosystem of pre-made modules and functionality for your bot
+  - Public packages are MIT/ISC licensed
+
 We maintain a complete list of available modules [here](https://rhidium.xyz/modules)
 
 ## Documentation
@@ -48,9 +54,3 @@ We provide multiple resources to help get you started on your project quickly:
 Join our [support server](https://discord.gg/mirasaki) if you have any questions, feature requests or other feedback:
 
 [![banner](https://invidget.switchblade.xyz/mirasaki)](https://discord.gg/mirasaki)
-
-- [DEV]
-- Solves several problems with existing module-based Discord bots/frameworks
-- Module system is made for both end-users and developers (eject)
-  - Should try to find End-users installs (not added to modules arr)
-  and load the modules, so that they only run the install command
