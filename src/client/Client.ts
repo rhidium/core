@@ -285,10 +285,10 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
 
   loadModules = () => {
     this.logger.debug('Loading modules');
-    this.loadNPMModules();
     this.modules.forEach((module) => {
       module.register(this);
     });
+    this.loadNPMModules();
   };
 
   loadNPMModules = () => {
@@ -296,6 +296,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
     for (const moduleName of officialModules) {
       let npmModule;
       try {
+        if (this.modules.find((e) => e.name === moduleName)) continue;
         npmModule = require(`@rhidium/${moduleName}`);
         if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
           throw new Error([
@@ -304,10 +305,16 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
             'please create a GitHub issue with details.',
           ].join(' '));
         }
+        npmModule = npmModule.default ?? npmModule;
+        npmModule = new npmModule();
         this.logger.debug(`[NPM Module] Loaded Official Module "${moduleName}"`);
         this.modules.push(npmModule);
       }
-      catch {
+      catch (err) {
+        this.logger.error([
+          `Failed to load Official Module "${moduleName}"`,
+          err,
+        ].join(' '));
         this.logger.debug(`[NPM Module] Official Module "${moduleName}" not installed`);
         continue;
       }

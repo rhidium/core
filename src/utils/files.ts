@@ -52,6 +52,8 @@ const getFiles = (
   )
     resolvedExtensions.push('.ts');
 
+  const hasTsFiles = resolvedExtensions.includes('.ts');
+
   // Initialize our response array, holding all found files
   const filePaths = [];
 
@@ -73,8 +75,10 @@ const getFiles = (
         !filePath
           .slice(filePath.lastIndexOf(path.sep) + 1, filePath.length)
           .startsWith('.')
-    )
+    ) {
+      if (hasTsFiles && filePath.endsWith('.d.ts')) continue;
       filePaths.push(filePath);
+    }
   }
 
   // Finally, return the array of file paths

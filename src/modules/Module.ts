@@ -4,12 +4,12 @@ import {readFileSync} from 'fs';
 import { IntentsBitField } from 'discord.js';
 import { Client, CommandMiddleware, Directories, GlobalMiddleware, GlobalMiddlewareOptions } from '..';
 
-export type OfficialModule = 'moderation' | 'module-template' | 'manage-modules';
+export type OfficialModule = '@rhidium/moderation' | '@rhidium/module-template' | '@rhidium/manage-modules';
 
 export const officialModules: OfficialModule[] = [
-  'moderation',
-  'module-template',
-  'manage-modules',
+  '@rhidium/moderation',
+  '@rhidium/module-template',
+  '@rhidium/manage-modules',
 ];
 
 export type SourceCodeDirectories = {
@@ -21,6 +21,10 @@ export type SourceCodeDirectories = {
 export interface ModuleOptions {
   name: string;
   directories: Client['directories'];
+  /**
+   * The source code directories for the module.
+   * Only used when #eject is called on official/public modules
+   */
   sourceCode: SourceCodeDirectories;
   globalMiddleware?: GlobalMiddlewareOptions;
   intents?: IntentsBitField[];
@@ -47,6 +51,7 @@ export class Module {
   globalMiddleware: GlobalMiddleware;
   intents: IntentsBitField[] = [];
   extensions: Record<string, unknown> = {};
+  official: boolean;
   constructor(options: ModuleOptions) {
     this.name = options.name;
     this.disabled = options.disabled ?? false;
@@ -56,6 +61,7 @@ export class Module {
       ? readFileSync(this.sourceCode.packageJson, 'utf-8')
       : '{"version": "0.0.0"}';
     const pkg = JSON.parse(pkgString);
+    this.official = pkg.name ? officialModules.includes(pkg.name as OfficialModule) : false;
     this.version = pkg.version ?? '0.0.0';
 
     this.tag = `[Module:${this.name}@${this.version}]`;
@@ -164,6 +170,7 @@ export class Module {
    * @param dirPath The path to write the files to.
    */
   async eject(client: Client, dirPath: string) {
+    if (!this.official) throw new Error(`${this.tag} Ejecting source code is only supported for official modules.`);
     client.logger.debug(`${this.tag} Ejecting source code to ${dirPath}`);
     const license = await readFile(this.sourceCode.mitLicense, 'utf-8');
     const pkgString = this.sourceCode.packageJson
@@ -173,8 +180,11 @@ export class Module {
     client.logger.debug(`${this.tag} EJECT Creating module directory ${dirPath}`);
     await mkdir(dirPath, { recursive: true });
 
+    const sourcePath = this.official
+      ? `./node_modules/@rhidium/${this.name}/${this.sourceCode.sourceFolder}`
+      : this.sourceCode.sourceFolder;
     client.logger.debug(`${this.tag} EJECT Copying source code to ${dirPath}`);
-    fse.copySync(this.sourceCode.sourceFolder, dirPath, { overwrite: true });
+    fse.copySync(sourcePath, dirPath, { overwrite: true });
     await writeFile(`${dirPath}/LICENSE`, license);
 
     client.logger.debug(`${this.tag} EJECT Resolving packages/dependencies..`);
@@ -200,6 +210,7 @@ export class Module {
       masterPkg.devDependencies[name as string] = version;
       dependenciesAdded++;
     }
+    if (this.official) delete masterPkg.dependencies[`@rhidium/${this.name}`];
     
     // This step triggers re-build in development
     client.logger.debug(`${this.tag} EJECT Resolved ${dependenciesAdded} dependencies`);
