@@ -297,7 +297,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       let npmModule;
       try {
         if (this.modules.find((e) => e.name === moduleName)) continue;
-        npmModule = require(moduleName);
+        npmModule = require(moduleName); // [DEV] Should be ran from the project root
         if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
           throw new Error([
             `Official Module "${moduleName}" is not an instance of Module,`,
