@@ -297,14 +297,14 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       let npmModule;
       try {
         if (this.modules.find((e) => e.name === moduleName)) continue;
-        npmModule = require(moduleName); // [DEV] Should be ran from the project root
-        if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
-          throw new Error([
-            `Official Module "${moduleName}" is not an instance of Module,`,
-            'this should never happen and was implemented as a fail-safe,',
-            'please create a GitHub issue with details.',
-          ].join(' '));
-        }
+        npmModule = require(moduleName); // [DEV] Should be ran from the project root - fails in prod build
+        // if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
+        //   throw new Error([
+        //     `Official Module "${moduleName}" is not an instance of Module,`,
+        //     'this should never happen and was implemented as a fail-safe,',
+        //     'please create a GitHub issue with details.',
+        //   ].join(' '));
+        // }
         npmModule = npmModule.default ?? npmModule;
         npmModule = new npmModule();
         this.logger.debug(`[NPM Module] Loaded Official Module "${moduleName}"`);
