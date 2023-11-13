@@ -41,7 +41,6 @@ import {
   Directories,
   InteractionUtils,
   Module,
-  OfficialModule,
   officialModules,
 } from '..';
 import Lang from '../i18n/i18n';
@@ -230,32 +229,12 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
     ].join('\n'));
   };
 
-  // [DEV]
-  get resolvedModuleDirectories () {
-    return this.modules.map((module) => {
-      const { name, directories } = module;
-      const isOfficialModule = officialModules.includes(name as OfficialModule);
-      console.log(name, isOfficialModule);
-      // const withNpmPath = (directories: Directories) => typeof directories === 'string'
-      //   ? isOfficialModule ? `node_modules/${name}/${directories}` : directories
-      //   : directories.map(
-      //     (e) => isOfficialModule ? `node_modules/${name}/${e}` : e
-      //   );
-      return directories;
-      // return {
-      //   chatInputs: withNpmPath(directories.chatInputs ?? []),
-      //   autoCompletes: withNpmPath(directories.autoCompletes ?? []),
-      //   componentCommands: withNpmPath(directories.componentCommands ?? []),
-      //   jobs: withNpmPath(directories.jobs ?? []),
-      //   listeners: withNpmPath(directories.listeners ?? []),
-      //   messageContextMenus: withNpmPath(directories.messageContextMenus ?? []),
-      //   userContextMenus: withNpmPath(directories.userContextMenus ?? []),
-      // };
-    });
+  get moduleDirectories () {
+    return this.modules.map((module) => module.directories);
   }
 
   get mergedDirectories () {
-    const moduleDirectories = this.resolvedModuleDirectories;
+    const moduleDirectories = this.moduleDirectories;
     return {
       chatInputs: moduleDirectories.map((dir) => dir.chatInputs)
         .flat().concat(...(this.directories.chatInputs ?? [])),
@@ -297,14 +276,14 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       let npmModule;
       try {
         if (this.modules.find((e) => e.name === moduleName)) continue;
-        npmModule = require(moduleName); // [DEV] Should be ran from the project root - fails in prod build
-        // if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
-        //   throw new Error([
-        //     `Official Module "${moduleName}" is not an instance of Module,`,
-        //     'this should never happen and was implemented as a fail-safe,',
-        //     'please create a GitHub issue with details.',
-        //   ].join(' '));
-        // }
+        npmModule = require(moduleName); // [DEV] Should be ran from the project root
+        if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
+          throw new Error([
+            `Official Module "${moduleName}" is not an instance of Module,`,
+            'this should never happen and was implemented as a fail-safe,',
+            'please create a GitHub issue with details.',
+          ].join(' '));
+        }
         npmModule = npmModule.default ?? npmModule;
         npmModule = new npmModule();
         this.logger.debug(`[NPM Module] Loaded Official Module "${moduleName}"`);
