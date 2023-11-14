@@ -1,7 +1,9 @@
 <div align="center">
  <br />
  <p>
-  <a href="https://rhidium.xyz"><img src="https://mirasaki.dev/images/logo-macbook.png" width="550" alt="logo" /></a>
+  <a href="https://rhidium.xyz"><img src="https://github.com/rhidium/core/assets/57721238/e6d25fa1-07cb-4284-a02a-f73fe7ef3878" width="100" alt="logo" /></a>
+  
+  ![Font_PNG](https://github.com/rhidium/core/assets/57721238/9ccc5763-8336-4d1e-8187-a738bafdc519)
  </p>
  <br />
  <p>
