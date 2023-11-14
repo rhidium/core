@@ -1,27 +1,23 @@
 <div align="center">
- <br />
- <p>
   <a href="https://rhidium.xyz"><img src="https://github.com/rhidium/core/assets/57721238/e6d25fa1-07cb-4284-a02a-f73fe7ef3878" width="100" alt="logo" /></a>
-  
-  ![Font_PNG](https://github.com/rhidium/core/assets/57721238/9ccc5763-8336-4d1e-8187-a738bafdc519)
- </p>
- <br />
- <p>
-  <a href="https://discord.gg/mirasaki"><img src="https://img.shields.io/discord/793894728847720468?color=5865F2&logo=discord&logoColor=white" alt="Discord server" /></a>
-  <a href="https://www.npmjs.com/package/@rhidium/core"><img src="https://img.shields.io/npm/v/@rhidium/core.svg?maxAge=3600" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/@rhidium/core"><img src="https://img.shields.io/npm/dt/@rhidium/core.svg?maxAge=3600" alt="npm downloads" /></a>
-  <a href="https://rhidium.xyz/modules"><img src="https://rhidium.xyz/coverage.svg" alt="coverage" /></a>
- </p>
 
- <p align="center">
-  <a href="https://github.com/rhidium/template">Complete Template</a>
-  •
-  <a href="https://github.com/rhidium/json-editor">JSON Editor</a>
-  •
-  <a href="https://github.com/rhidium/json-editor">Placeholder</a>
-  •
-  <a href="https://github.com/rhidium/json-editor">Placeholder</a>
-</p>
+  ![Font_PNG](https://github.com/rhidium/core/assets/57721238/9ccc5763-8336-4d1e-8187-a738bafdc519)
+
+  <p>
+    <a href="https://discord.gg/mirasaki"><img src="https://img.shields.io/discord/793894728847720468?color=5865F2&logo=discord&logoColor=white" alt="Discord server" /></a>
+    <a href="https://www.npmjs.com/package/@rhidium/core"><img src="https://img.shields.io/npm/v/@rhidium/core.svg?maxAge=3600" alt="npm version" /></a>
+    <a href="https://www.npmjs.com/package/@rhidium/core"><img src="https://img.shields.io/npm/dt/@rhidium/core.svg?maxAge=3600" alt="npm downloads" /></a>
+  </p>
+
+  <p align="center">
+    <a href="https://github.com/rhidium/template">Complete Template</a>
+    •
+    <a href="https://github.com/rhidium/json-editor">JSON Editor</a>
+    •
+    <a href="https://github.com/rhidium/json-editor">Placeholder</a>
+    •
+    <a href="https://github.com/rhidium/json-editor">Placeholder</a>
+  </p>
 </div>
 
 # @rhidium/core
