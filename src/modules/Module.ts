@@ -180,9 +180,7 @@ export class Module {
     client.logger.debug(`${this.tag} EJECT Creating module directory ${dirPath}`);
     await mkdir(dirPath, { recursive: true });
 
-    const sourcePath = this.official
-      ? `./node_modules/${this.name}/${this.sourceCode.sourceFolder}`
-      : this.sourceCode.sourceFolder;
+    const sourcePath = this.sourceCode.sourceFolder;
     client.logger.debug(`${this.tag} EJECT Copying source code to ${dirPath}`);
     fse.copySync(sourcePath, dirPath, { overwrite: true });
     await writeFile(`${dirPath}/LICENSE`, license);

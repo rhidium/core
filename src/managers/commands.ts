@@ -46,6 +46,7 @@ import { EmbedConstants, UnitConstants } from '../constants';
 import { ClientEventListener } from '.';
 import { stripIndents } from 'common-tags';
 import { Job } from '../jobs';
+import { officialModules } from '..';
 
 export type ExcludedCommandNames =
   'components' | 'options' | 'types' | 'helpers' | 'controllers' | 'services' | 'transformers' | 'enums'
@@ -330,23 +331,29 @@ export class CommandManager {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         let cmd: unknown = require(cmdPath);
 
+        const fileDirectoryName = path.basename(path.dirname(cmdPath));
+        const isExcluded = excludedCommandNames.some(
+          (e) => cmdPath.endsWith(`${e}.js`) || cmdPath.endsWith(`${e}.ts`) || fileDirectoryName === e,
+        );
+        if (isExcluded) {
+          this.client.logger.debug(
+            `Skipping excluded command: ${FileUtils.getProjectRelativePath(cmdPath)} (reserved file name)`,
+          );
+          continue;
+        }
+
         // Resolve default exports
         if (typeof cmd === 'object' && cmd !== null && 'default' in cmd)
           cmd = cmd.default;
 
-        // Only work with internal commands
-        if (!isCommand(cmd)) {
-          const fileDirectoryName = path.basename(path.dirname(cmdPath));
-          const isExcluded = excludedCommandNames.some(
-            (e) => cmdPath.endsWith(`${e}.js`) || cmdPath.endsWith(`${e}.ts`) || fileDirectoryName === e,
-          );
-          if (!isExcluded) this.client.logger.warn(
-            // Not CommandType - can't use sourceFile or sourceFileStackTrace, .etc
-            `Expected a CommandType to be exported, skipping...\n    at ${cmdPath}`,
-          );
-        } else {
-          commands.set(cmdPath, cmd as T);
-        }
+        // [DEV]: Not fool proof, but should work for most cases
+        const isFromOfficialModule = officialModules.some((e) => cmdPath.includes(e));
+
+        if (isFromOfficialModule || isCommand(cmd)) commands.set(cmdPath, cmd as T);
+        else this.client.logger.warn(
+          // Not CommandType - can't use sourceFile or sourceFileStackTrace, .etc
+          `Expected a CommandType to be exported, skipping...\n    at ${cmdPath}`,
+        );
       }
     }
 
@@ -504,7 +511,8 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const handler = require(resolvedPath);
-      if (handler?.default instanceof AutoCompleteOption) {
+      const isFromOfficialModule = officialModules.some((e) => filePath.includes(e));
+      if (isFromOfficialModule || handler?.default instanceof AutoCompleteOption) {
         handler.default.client = this.client;
         collection.set(handler.default.name, handler.default);
       } else {
@@ -527,7 +535,8 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const handler = require(resolvedPath);
-      if (handler?.default instanceof Job) {
+      const isFromOfficialModule = officialModules.some((e) => filePath.includes(e));
+      if (isFromOfficialModule || handler?.default instanceof Job) {
         collection.set(handler.default.id, handler.default);
       } else {
         this.client.logger.debug(
@@ -549,7 +558,8 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const listener = require(resolvedPath);
-      if (listener?.default instanceof ClientEventListener) {
+      const isFromOfficialModule = officialModules.some((e) => filePath.includes(e));
+      if (isFromOfficialModule || listener?.default instanceof ClientEventListener) {
         listener.default.client = this.client;
         collection.set(listener.default.event, listener.default);
         listener.default.register(this.client);
