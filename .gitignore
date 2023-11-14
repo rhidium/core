@@ -6,3 +6,7 @@ TODO.md
 
 # Optional eslint cache
 .eslintcache
+
+# Ignore package locks
+package-lock.json
+yarn.lock
