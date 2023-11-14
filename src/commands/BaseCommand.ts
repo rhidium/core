@@ -233,7 +233,7 @@ export interface ComponentCommandData {
  * Represents the base class used for all our commands & components
  * */
 export class BaseCommand<I extends BaseInteraction = BaseInteraction> {
-  client?: Client<true>;
+  client?: Client;
   collection?: Collection<string, CommandType>;
   manager?: CommandManager;
   permLevel: PermLevel = PermLevel.User;
@@ -269,7 +269,7 @@ export class BaseCommand<I extends BaseInteraction = BaseInteraction> {
 
   constructor(
     options: BaseCommandOptions<I>,
-    client?: Client<true>,
+    client?: Client,
     manager?: CommandManager,
   ) {
     if (client) this.client = client;
@@ -795,7 +795,7 @@ export class BaseCommand<I extends BaseInteraction = BaseInteraction> {
 
   handleInteraction = async (
     interaction: I,
-    client: Client,
+    client: Client<true>,
     cmdContext: CommandMiddlewareMetaContext
   ): Promise<boolean> => {
     // Initialize middleware

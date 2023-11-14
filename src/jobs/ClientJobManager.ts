@@ -4,10 +4,10 @@ import { Collection } from 'discord.js';
 import { ClusterUtils } from '../utils';
 
 export class ClientJobManager {
-  client: Client;
+  client: Client<true>;
   jobs: Collection<string, Job>;
   tag: string;
-  constructor(client: Client, jobs?: Job[]) {
+  constructor(client: Client<true>, jobs?: Job[]) {
     this.client = client;
     this.jobs = new Collection();
     if (jobs) jobs.forEach((job) => this.addJob(job));
