@@ -280,30 +280,37 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
           npmModule = require(moduleName); // [DEV] Should be ran from the project root
         }
         catch {
-          // Only use backup in development mode (TS_NODE_DEV, npm link packages)
+          console.log(process.env.TS_NODE_DEV);
           if (process.env.TS_NODE_DEV !== 'true') continue;
+          console.log(existsSync(`./node_modules/${moduleName}`));
           if (existsSync(`./node_modules/${moduleName}`)) {
             npmModule = require(`${process.cwd()}/node_modules/${moduleName}`);
-            // npmModule.default &&= npmModule.default as Module;
           }
+          console.log(npmModule);
+          console.log(npmModule instanceof Module || npmModule.default instanceof Module);
         }
-        if (!(npmModule instanceof Module) && !(npmModule?.default instanceof Module)) {
+
+        // Note: instanceof checking is too limiting for development,
+        // there's no use in creating a module ecosystem if developing
+        // the modules is a pain. These are official modules, so we
+        // can trust them to be valid - as we only load these from a predefined
+        // array of allowed module names
+
+        // Actually, we might just get this to work if we get our versioning right
+        if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
           throw new Error([
             `Official Module "${moduleName}" is not an instance of Module,`,
             'this should never happen and was implemented as a fail-safe,',
             'please create a GitHub issue with details.',
           ].join(' '));
         }
+
         npmModule = npmModule.default ?? npmModule;
         npmModule = new npmModule();
         this.logger.debug(`[NPM Module] Loaded Official Module "${moduleName}"`);
         this.modules.push(npmModule);
       }
-      catch (err) {
-        this.logger.error([
-          `Failed to load Official Module "${moduleName}"`,
-          err,
-        ].join(' '));
+      catch {
         this.logger.debug(`[NPM Module] Official Module "${moduleName}" not installed`);
         continue;
       }
