@@ -44,6 +44,7 @@ import {
   officialModules,
 } from '..';
 import Lang from '../i18n/i18n';
+import { existsSync } from 'fs-extra';
 
 export type ClientWithCluster<Ready extends boolean = boolean> = Client<Ready> & {
   cluster: ClusterClient<Client>
@@ -257,7 +258,6 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
     this.printVanity();
     this.loadModules();
     this.commandManager.initialize(this.mergedDirectories);
-    this.jobManager = new ClientJobManager(this, this.commandManager.jobs.toJSON());
     this.registerEssentialListeners();
     return this;
   }
@@ -276,8 +276,18 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       let npmModule;
       try {
         if (this.modules.find((e) => e.name === moduleName)) continue;
-        npmModule = require(moduleName); // [DEV] Should be ran from the project root
-        if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
+        try {
+          npmModule = require(moduleName); // [DEV] Should be ran from the project root
+        }
+        catch {
+          // Only use backup in development mode (TS_NODE_DEV, npm link packages)
+          if (process.env.TS_NODE_DEV !== 'true') continue;
+          if (existsSync(`./node_modules/${moduleName}`)) {
+            npmModule = require(`${process.cwd()}/node_modules/${moduleName}`);
+            // npmModule.default &&= npmModule.default as Module;
+          }
+        }
+        if (!(npmModule instanceof Module) && !(npmModule?.default instanceof Module)) {
           throw new Error([
             `Official Module "${moduleName}" is not an instance of Module,`,
             'this should never happen and was implemented as a fail-safe,',
@@ -307,9 +317,22 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         name: c.user.username,
         iconURL: c.user.displayAvatarURL(),
       };
+
+      this.jobManager = new ClientJobManager(this as Client<true>, this.commandManager.jobs.toJSON());
     });
 
     this.on(Events.InteractionCreate, async (interaction) => {
+      // This can't happen, since you need to be logged in to receive
+      // events, but lets assert for our type conversion
+      if (!this.isReady()) {
+        throw new Error([
+          'Received an interaction before the client was ready,',
+          'this should never happen and is very likely a bug in your code - please investigate',
+          'and create a GitHub issue if you believe this is a bug.',
+        ].join(' '));
+      }
+      const readyClient = this as Client<true>;
+
       // Middleware context
       const invokedAt = new Date();
       const startRunTs = process.hrtime();
@@ -333,7 +356,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         );
         if (!autoCompleteHandler) return;
         await DiscordLogger.tryWithErrorLogging(
-          this,
+          readyClient,
           () => autoCompleteHandler.handleInteraction(interaction),
           'An error occurred while handling an auto complete interaction',
         );
@@ -357,7 +380,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       // Make sure we have a command
       if (!command) {
         if (this.extendedOptions.refuseUnknownCommandInteractions) {
-          InteractionUtils.replyDynamic(this, interaction, {
+          InteractionUtils.replyDynamic(readyClient, interaction, {
             embeds: [
               this.embeds.error({
                 title: Lang.t('commands.unknownCommandTitle'),
@@ -377,7 +400,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
 
       // Make sure the command is enabled
       if (command.disabled) {
-        InteractionUtils.replyDynamic(this, interaction, {
+        InteractionUtils.replyDynamic(readyClient, interaction, {
           embeds: [
             this.embeds.error({
               title: Lang.t('commands.commandDisabledTitle'),
@@ -402,7 +425,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
             'and create a GitHub issue if you believe this is a bug.',
           ].join(' '));
         }
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else if (command instanceof UserContextCommand) {
@@ -413,7 +436,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
             'and create a GitHub issue if you believe this is a bug.',
           ].join(' '));
         }
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else if (command instanceof MessageContextCommand) {
@@ -424,11 +447,11 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
             'and create a GitHub issue if you believe this is a bug.',
           ].join(' '));
         }
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else if (interaction.isMessageComponent()) {
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else if (interaction.isModalSubmit()) {
@@ -439,7 +462,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
             'and create a GitHub issue if you believe this is a bug.',
           ].join(' '));
         }
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else { // Unknown command type
