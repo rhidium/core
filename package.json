@@ -1,6 +1,6 @@
 {
   "name": "@rhidium/core",
-  "version": "0.0.8",
+  "version": "0.0.12",
   "description": "Quickly and easily create powerful Discord bots using plug-and-play modules",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -13,6 +13,7 @@
     "clean": "npm run clean:dist && npm run clean:modules && npm run clean:docs",
     "prebuild": "npm run clean:dist",
     "build": "tsup",
+    "build:watch": "tsup --watch",
     "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}'",
     "lint:fix": "eslint --fix 'src/**/*.{ts,tsx,js,jsx}'",
     "docs": "npx typedoc",
