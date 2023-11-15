@@ -4,7 +4,9 @@ import { ComponentCommandBase, ComponentCommandOptions, ComponentCommandType } f
 /**
  * Represents a command that is executed through a button component
  */
-export class ButtonCommand<I extends ButtonInteraction = ButtonInteraction>
+export class ButtonCommand<
+  I extends ButtonInteraction = ButtonInteraction,
+>
   extends ComponentCommandBase<I>
   implements ComponentCommandOptions<I>
 {

@@ -4,7 +4,7 @@ import { TimeUtils } from '../utils';
 import { BaseInteraction, PermissionFlagsBits } from 'discord.js';
 
 const tryWithErrorLogging = async <T>(
-  client: Client,
+  client: Client<true>,
   fn: () => T,
   message?: string,
   onError?: (error: Error) => void,

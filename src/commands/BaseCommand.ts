@@ -83,7 +83,9 @@ export const isDataBasedCommand = (item: unknown): item is APICommandType =>
 
 export const DEFAULT_SOURCE_FILE_STRING = 'uninitialized/ghost command';
 
-export type RunFunction<I extends BaseInteraction> = (
+export type RunFunction<
+  I extends BaseInteraction = BaseInteraction,
+> = (
   /** The client that received this interaction */
   client: Client<true>,
   /** The interaction that triggered this command#run */
@@ -93,7 +95,9 @@ export type RunFunction<I extends BaseInteraction> = (
 /**
  * Represents a client command configuration object
  */
-export interface BaseCommandOptions<I extends BaseInteraction> {
+export interface BaseCommandOptions<
+  I extends BaseInteraction = BaseInteraction,
+> {
   /**
    * The permission level required to use the command
    *
@@ -147,7 +151,7 @@ export interface BaseCommandOptions<I extends BaseInteraction> {
    * Note: This is NOT persistent, for that, you should use your own
    * persistent cooldown middleware
    */
-  cooldown?: CommandThrottleOptions | CommandThrottle;
+  cooldown?: CommandThrottleOptions;
   /**
    * This command's category, if omitted, the command's origin file's parent folder name will be parsed and used
    * @default 'file parent folder name'
@@ -232,8 +236,10 @@ export interface ComponentCommandData {
 /**
  * Represents the base class used for all our commands & components
  * */
-export class BaseCommand<I extends BaseInteraction = BaseInteraction> {
-  client?: Client<true>;
+export class BaseCommand<
+  I extends BaseInteraction = BaseInteraction,
+> {
+  client?: Client;
   collection?: Collection<string, CommandType>;
   manager?: CommandManager;
   permLevel: PermLevel = PermLevel.User;
@@ -269,7 +275,7 @@ export class BaseCommand<I extends BaseInteraction = BaseInteraction> {
 
   constructor(
     options: BaseCommandOptions<I>,
-    client?: Client<true>,
+    client?: Client,
     manager?: CommandManager,
   ) {
     if (client) this.client = client;
@@ -731,7 +737,7 @@ export class BaseCommand<I extends BaseInteraction = BaseInteraction> {
     // Make sure the command is enabled
     if (!this.matchEnabledConstraints(interaction, client)) return false;
 
-    // Perform required framework checks
+    // Perform required internal checks
     // First check is internal permission level -
     // they don't have to know anything about the
     // command if they don't have permission
@@ -778,11 +784,6 @@ export class BaseCommand<I extends BaseInteraction = BaseInteraction> {
         middleware.preRunThrottle,
       )) return false;
 
-      // Note: we have since removed persistent cooldown
-      // from the package as it requires a database to scale
-      // Persistent cooldown requested, defer reply
-      // if (this.cooldown.persistent) await this.deferReplyInternal(interaction);
-
       // Should only apply to "successful" commands -
       // otherwise failed-constraints commands will
       // consume throttle points
@@ -795,7 +796,7 @@ export class BaseCommand<I extends BaseInteraction = BaseInteraction> {
 
   handleInteraction = async (
     interaction: I,
-    client: Client,
+    client: Client<true>,
     cmdContext: CommandMiddlewareMetaContext
   ): Promise<boolean> => {
     // Initialize middleware

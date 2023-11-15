@@ -16,7 +16,9 @@ export const isComponentCommand = (item: unknown): item is ComponentCommand =>
   || item instanceof ModalCommand
   || item instanceof SelectMenuCommand;
 
-export interface ComponentCommandOptions<I extends BaseInteraction>
+export interface ComponentCommandOptions<
+  I extends BaseInteraction = BaseInteraction,
+>
   extends BaseCommandOptions<I>,
     ComponentCommandDataOptions {
   /**
@@ -35,7 +37,9 @@ export interface ComponentCommandDataOptions {
 /**
  * Represents a command that is executed through a component, a button, modal, select-menu, etc.
  */
-export class ComponentCommandBase<I extends BaseInteraction = BaseInteraction>
+export class ComponentCommandBase<
+  I extends BaseInteraction = BaseInteraction,
+>
   extends BaseCommand<I>
   implements ComponentCommandOptions<I>
 {

@@ -3,7 +3,7 @@ import { RuntimeUtils } from '../utils';
 import { sendAt, CronJob } from 'cron';
 
 export type JobRunFunction = (
-  client: Client,
+  client: Client<true>,
   ...args: unknown[]
 ) => unknown | Promise<unknown>;
 

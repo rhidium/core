@@ -33,7 +33,6 @@ implements IRequiredResources
       this.guilds.some((id) => id === interaction.guildId);
     if (!match) {
       if (handleInteraction) {
-        console.log(Lang.t('commands.notAvailableInCurrentServer'));
         InteractionUtils.replyDynamic(client, interaction, {
           content: Lang.t('commands.notAvailableInCurrentServer'),
           ephemeral: true,

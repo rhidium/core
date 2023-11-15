@@ -1,11 +1,9 @@
-import { init as initLang } from './i18n/i18n';
-initLang();
-
 export * from './client';
 export * from './commands';
 export * from './component-actions';
 export * from './constants';
 export * from './data-structures';
+export * from './i18n';
 export * from './jobs';
 export * from './logger';
 export * from './managers';

@@ -4,7 +4,9 @@ import { ComponentCommandBase, ComponentCommandOptions, ComponentCommandType } f
 /**
  * Represents a command that is executed through a Select Menu component
  */
-export class SelectMenuCommand<I extends AnySelectMenuInteraction = AnySelectMenuInteraction>
+export class SelectMenuCommand<
+  I extends AnySelectMenuInteraction = AnySelectMenuInteraction,
+>
   extends ComponentCommandBase<I>
   implements ComponentCommandOptions<I>
 {

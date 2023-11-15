@@ -3,7 +3,10 @@
   "typescript.referencesCodeLens.enabled": true,
   "typescript.implementationsCodeLens.enabled": true,
   "cSpell.enabled": true,
-  "cSpell.words": [ "Greyple" ],
+  "cSpell.words": [
+    "Greyple",
+    "rhidium"
+  ],
   "eslint.enable": true,
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,

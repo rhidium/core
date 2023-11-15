@@ -1,5 +1,5 @@
 {
-  "name": "TypeScript Discord Template",
+  "name": "Rhidium Core",
   "entryPoints": [
     "./src/index.namespaces.ts",
   ],

@@ -73,19 +73,19 @@ export type DeployCommandsOptions = FetchApplicationCommandOptions &
 
 export interface CommandManagerCommandsOptions {
   /** Absolute or relative path(s) to the folders/directories that hold your client listeners */
-  listenerDirs?: Directories;
+  listeners?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your chat-input commands */
-  chatInputCommandDirs?: Directories;
+  chatInputs?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your auto-complete option handlers */
-  autoCompleteHandlerDirs?: Directories;
+  autoCompletes?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your user-context commands */
-  userContextMenuDirs?: Directories;
+  userContextMenus?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your message-context commands */
-  messageContextMenuDirs?: Directories;
+  messageContextMenus?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your component commands */
-  componentCommandDirs?: Directories;
+  componentCommands?: Directories;
   /** Absolute or relative path(s) to the folders/directories that hold your jobs */
-  jobDirs?: Directories;
+  jobs?: Directories;
 }
 
 export interface CommandManagerOptions {
@@ -330,22 +330,29 @@ export class CommandManager {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         let cmd: unknown = require(cmdPath);
 
+        const fileDirectoryName = path.basename(path.dirname(cmdPath));
+        const isExcluded = excludedCommandNames.some(
+          (e) => cmdPath.endsWith(`${e}.js`) || cmdPath.endsWith(`${e}.ts`) || fileDirectoryName === e,
+        );
+        if (isExcluded) {
+          this.client.logger.debug(
+            `Skipping excluded command: ${FileUtils.getProjectRelativePath(cmdPath)} (reserved file name)`,
+          );
+          continue;
+        }
+
         // Resolve default exports
         if (typeof cmd === 'object' && cmd !== null && 'default' in cmd)
           cmd = cmd.default;
 
-        // Only work with internal commands
         if (!isCommand(cmd)) {
-          const isExcluded = excludedCommandNames.some(
-            (e) => cmdPath.endsWith(`${e}.js`) || cmdPath.endsWith(`${e}.ts`)
+          this.client.logger.debug(
+            `Skipping non-command: ${FileUtils.getProjectRelativePath(cmdPath)}`,
           );
-          if (!isExcluded) this.client.logger.warn(
-            // Not CommandType - can't use sourceFile or sourceFileStackTrace, .etc
-            `Expected a CommandType to be exported, skipping...\n    at ${cmdPath}`,
-          );
-        } else {
-          commands.set(cmdPath, cmd as T);
+          continue;
         }
+
+        commands.set(cmdPath, cmd as T);
       }
     }
 
@@ -358,7 +365,11 @@ export class CommandManager {
   loadCommandCollection<T extends CommandType>(
     dirPath: Directories,
     collection: Collection<string, T>,
-  ): Collection<string, T> {
+  ): {
+    collection: Collection<string, T>;
+    added: T[];
+  } {
+    const added: T[] = [];
     const { logger } = this.client;
     const commands = this.findCommandsInFolder<T>(dirPath);
     const dirPaths = typeof dirPath === 'string' ? [dirPath] : dirPath;
@@ -367,7 +378,10 @@ export class CommandManager {
     // Warning, empty command folder provided - return early
     if (commands.size === 0) {
       logger.warn(`No commands found in provided directory: ${dirPathOutput}`);
-      return collection;
+      return {
+        collection,
+        added: [],
+      };
     }
 
     for (const [cmdPath, command] of commands) {
@@ -423,79 +437,83 @@ export class CommandManager {
 
       // Register the command
       collection.set(command.data.name, command);
+      added.push(command);
     }
 
-    return collection;
+    return {
+      collection,
+      added,
+    };
   }
 
   initialize = ({
-    listenerDirs,
-    chatInputCommandDirs,
-    autoCompleteHandlerDirs,
-    userContextMenuDirs,
-    messageContextMenuDirs,
-    componentCommandDirs,
-    jobDirs,
+    listeners,
+    chatInputs,
+    autoCompletes,
+    userContextMenus,
+    messageContextMenus,
+    componentCommands,
+    jobs,
   }: CommandManagerCommandsOptions) => {
-    if (listenerDirs) {
-      this.directories.listenerDirs = listenerDirs;
-      const listeners = this.resolveListeners(
-        listenerDirs,
-        new Collection<string, ClientEventListener>(),
-      );
-      this.listeners = listeners;
-    }
-    if (chatInputCommandDirs) {
-      this.directories.chatInputCommandDirs = chatInputCommandDirs;
-      const commands = this.loadCommandCollection(
-        chatInputCommandDirs,
-        new Collection<string, ChatInputCommand>(),
-      );
-      this.chatInput = commands;
-    }
-    if (autoCompleteHandlerDirs) {
-      this.directories.autoCompleteHandlerDirs = autoCompleteHandlerDirs;
-      const autoCompletes = this.resolveAutoCompletes(
-        autoCompleteHandlerDirs,
-        new Collection<string, AutoCompleteOption>(),
-      );
-      this.autoComplete = autoCompletes;
-    }
-    if (userContextMenuDirs) {
-      this.directories.userContextMenuDirs = userContextMenuDirs;
-      const commands = this.loadCommandCollection(
-        userContextMenuDirs,
-        new Collection<string, UserContextCommand>(),
-      );
-      this.userContextMenus = commands;
-    }
-    if (messageContextMenuDirs) {
-      this.directories.messageContextMenuDirs = messageContextMenuDirs;
-      const commands = this.loadCommandCollection(
-        messageContextMenuDirs,
-        new Collection<string, MessageContextCommand>(),
-      );
-      this.messageContextMenus = commands;
-    }
-    if (componentCommandDirs) {
-      this.directories.componentCommandDirs = componentCommandDirs;
-      const commands = this.loadCommandCollection(
-        componentCommandDirs,
-        new Collection<string, ComponentCommandBase>(),
-      );
-      this.componentCommands = commands;
-    }
-    if (jobDirs) {
-      this.directories.jobDirs = jobDirs;
-      const jobs = this.resolveJobs(jobDirs, new Collection());
-      this.jobs = jobs;
-    }
-  };
+    const jobsCollection = new Collection<string, Job>();
+    const listenersCollection = new Collection<string, ClientEventListener>();
+    const autoCompletesCollection = new Collection<string, AutoCompleteOption>();
+    const chatInputsCollection = new Collection<string, ChatInputCommand>();
+    const userContextMenusCollection = new Collection<string, UserContextCommand>();
+    const messageContextMenusCollection = new Collection<string, MessageContextCommand>();
+    const componentCommandsCollection = new Collection<string, ComponentCommandBase>();
 
+    if (listeners) {
+      this.directories.listeners = listeners;
+      const resolvedListeners = this.resolveListeners(listeners, listenersCollection);
+      this.listeners = resolvedListeners.collection;
+    }
+    if (chatInputs) {
+      this.directories.chatInputs = chatInputs;
+      const commands = this.loadCommandCollection(chatInputs, chatInputsCollection);
+      this.chatInput = commands.collection;
+    }
+    if (autoCompletes) {
+      this.directories.autoCompletes = autoCompletes;
+      const commands = this.resolveAutoCompletes(autoCompletes, autoCompletesCollection);
+      this.autoComplete = commands.collection;
+    }
+    if (userContextMenus) {
+      this.directories.userContextMenus = userContextMenus;
+      const commands = this.loadCommandCollection(userContextMenus, userContextMenusCollection);
+      this.userContextMenus = commands.collection;
+    }
+    if (messageContextMenus) {
+      this.directories.messageContextMenus = messageContextMenus;
+      const commands = this.loadCommandCollection(messageContextMenus, messageContextMenusCollection);
+      this.messageContextMenus = commands.collection;
+    }
+    if (componentCommands) {
+      this.directories.componentCommands = componentCommands;
+      const commands = this.loadCommandCollection(componentCommands, componentCommandsCollection);
+      this.componentCommands = commands.collection;
+    }
+    if (jobs) {
+      this.directories.jobs = jobs;
+      const loadedJobs = this.resolveJobs(jobs, jobsCollection);
+      this.jobs = loadedJobs.collection;
+    }
+
+    return {
+      listenersCollection,
+      chatInputsCollection,
+      autoCompletesCollection,
+      userContextMenusCollection,
+      messageContextMenusCollection,
+      componentCommandsCollection,
+      jobsCollection,
+    };
+  };
   resolveAutoCompletes = (
     pathOrPaths: Directories,
     collection: Collection<string, AutoCompleteOption>,
   ) => {
+    const added = [];
     const resolvedDirs =
       typeof pathOrPaths === 'string' ? [pathOrPaths] : pathOrPaths;
     const allFiles = resolvedDirs.map((e) => FileUtils.getFiles(e)).flat();
@@ -503,22 +521,21 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const handler = require(resolvedPath);
-      if (handler?.default instanceof AutoCompleteOption) {
-        handler.default.client = this.client;
-        collection.set(handler.default.name, handler.default);
-      } else {
-        this.client.logger.debug(
-          `Expected instanceof AutoCompleteOption to be exported, skipping: ${resolvedPath}`,
-        );
-      }
+      handler.default.client = this.client;
+      collection.set(handler.default.name, handler.default as AutoCompleteOption);
+      added.push(handler.default);
     }
-    return collection;
+    return {
+      collection,
+      added,
+    };
   };
 
   resolveJobs = (
     pathOrPaths: Directories,
     collection: Collection<string, Job>,
   ) => {
+    const added = [];
     const resolvedDirs =
       typeof pathOrPaths === 'string' ? [pathOrPaths] : pathOrPaths;
     const allFiles = resolvedDirs.map((e) => FileUtils.getFiles(e)).flat();
@@ -526,21 +543,20 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const handler = require(resolvedPath);
-      if (handler?.default instanceof Job) {
-        collection.set(handler.default.id, handler.default);
-      } else {
-        this.client.logger.debug(
-          `Expected instanceof Job to be exported, skipping: ${resolvedPath}`,
-        );
-      }
+      collection.set(handler.default.id, handler.default as Job);
+      added.push(handler.default);
     }
-    return collection;
+    return {
+      collection,
+      added,
+    };
   };
 
   resolveListeners = (
     pathOrPaths: Directories,
     collection: Collection<string, ClientEventListener>,
   ) => {
+    const added = [];
     const resolvedDirs =
       typeof pathOrPaths === 'string' ? [pathOrPaths] : pathOrPaths;
     const allFiles = resolvedDirs.map((e) => FileUtils.getFiles(e)).flat();
@@ -548,17 +564,15 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const listener = require(resolvedPath);
-      if (listener?.default instanceof ClientEventListener) {
-        listener.default.client = this.client;
-        collection.set(listener.default.event, listener.default);
-        listener.default.register(this.client);
-      } else {
-        this.client.logger.debug(
-          `Expected instanceof ClientEventListener to be exported, skipping: ${resolvedPath}`,
-        );
-      }
+      listener.default.client = this.client;
+      collection.set(listener.default.event, listener.default as ClientEventListener);
+      added.push(listener.default);
+      listener.default.register(this.client);
     }
-    return collection;
+    return {
+      collection,
+      added,
+    };
   };
 
   fetchApplicationCommands = async (options: DeployCommandsOptions) => {
@@ -810,7 +824,7 @@ export class CommandManager {
           ...newCfg,
           aliases: [],
           aliasOf: command,
-        });
+        }) as CommandType;
         // Note: Without doing this, changing alias data
         // will overwrite initial/parent data as well
         const newData = Object.assign({ name: aliasStr }, command.data);

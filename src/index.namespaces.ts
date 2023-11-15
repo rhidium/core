@@ -10,6 +10,7 @@ export * as Commands from './commands/index.namespaces';
 export * as ComponentActions from './component-actions';
 export * as Constants from './constants';
 export * as DataStructures from './data-structures';
+export * as Language from './i18n';
 export * as Jobs from './jobs';
 export * as Logger from './logger';
 export * as Managers from './managers';

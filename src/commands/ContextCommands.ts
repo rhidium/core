@@ -6,7 +6,7 @@ import {
 import { APICommand, APICommandOptions } from './APICommand';
 
 export interface ContextMenuCommandOptions<
-  I extends UserContextMenuCommandInteraction,
+  I extends UserContextMenuCommandInteraction = UserContextMenuCommandInteraction,
 > extends APICommandOptions<I> {
   /** Command data to send off to the Discord API, resolved by builder */
   data?: ContextMenuCommandBuilder;
@@ -14,9 +14,8 @@ export interface ContextMenuCommandOptions<
 
 /** Represents a user context-command, right-click user > Apps */
 export class UserContextCommand<
-    I extends
-      UserContextMenuCommandInteraction = UserContextMenuCommandInteraction,
-  >
+  I extends UserContextMenuCommandInteraction = UserContextMenuCommandInteraction,
+>
   extends APICommand<I>
   implements ContextMenuCommandOptions<I>
 {
@@ -29,7 +28,7 @@ export class UserContextCommand<
 }
 
 export interface MessageContextCommandOptions<
-  I extends MessageContextMenuCommandInteraction,
+  I extends MessageContextMenuCommandInteraction = MessageContextMenuCommandInteraction,
 > extends APICommandOptions<I> {
   /** Command data to send off to the Discord API, resolved by builder */
   data?: ContextMenuCommandBuilder;
@@ -37,9 +36,8 @@ export interface MessageContextCommandOptions<
 
 /** Represents a message context-command, right-click message > Apps */
 export class MessageContextCommand<
-    I extends
-      MessageContextMenuCommandInteraction = MessageContextMenuCommandInteraction,
-  >
+  I extends MessageContextMenuCommandInteraction = MessageContextMenuCommandInteraction,
+>
   extends APICommand<I>
   implements MessageContextCommandOptions<I>
 {

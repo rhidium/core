@@ -118,7 +118,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
   readonly colors: UserColors;
   readonly embeds: Embeds;
   readonly clientEmojis: IEmojis;
-  readonly directories: CommandManagerCommandsOptions;
+  directories: CommandManagerCommandsOptions;
   readonly extendedOptions: DiscordClientOptions &
     Partial<ClientOptions> &
     RequiredClientOptions<Ready>;
@@ -225,9 +225,8 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
 
   initialize(): this {
     this.printVanity();
-    this.commandManager.initialize(this.directories);
-    this.jobManager = new ClientJobManager(this, this.commandManager.jobs.toJSON());
     this.registerEssentialListeners();
+    this.commandManager.initialize(this.directories);
     return this;
   }
 
@@ -238,9 +237,22 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         name: c.user.username,
         iconURL: c.user.displayAvatarURL(),
       };
+
+      this.jobManager = new ClientJobManager(this as Client<true>, this.commandManager.jobs.toJSON());
     });
 
     this.on(Events.InteractionCreate, async (interaction) => {
+      // This can't happen, since you need to be logged in to receive
+      // events, but lets assert for our type conversion
+      if (!this.isReady()) {
+        throw new Error([
+          'Received an interaction before the client was ready,',
+          'this should never happen and is very likely a bug in your code - please investigate',
+          'and create a GitHub issue if you believe this is a bug.',
+        ].join(' '));
+      }
+      const readyClient = this as Client<true>;
+
       // Middleware context
       const invokedAt = new Date();
       const startRunTs = process.hrtime();
@@ -264,7 +276,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         );
         if (!autoCompleteHandler) return;
         await DiscordLogger.tryWithErrorLogging(
-          this,
+          readyClient,
           () => autoCompleteHandler.handleInteraction(interaction),
           'An error occurred while handling an auto complete interaction',
         );
@@ -288,7 +300,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       // Make sure we have a command
       if (!command) {
         if (this.extendedOptions.refuseUnknownCommandInteractions) {
-          InteractionUtils.replyDynamic(this, interaction, {
+          InteractionUtils.replyDynamic(readyClient, interaction, {
             embeds: [
               this.embeds.error({
                 title: Lang.t('commands.unknownCommandTitle'),
@@ -308,7 +320,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
 
       // Make sure the command is enabled
       if (command.disabled) {
-        InteractionUtils.replyDynamic(this, interaction, {
+        InteractionUtils.replyDynamic(readyClient, interaction, {
           embeds: [
             this.embeds.error({
               title: Lang.t('commands.commandDisabledTitle'),
@@ -320,6 +332,11 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         return;
       }
 
+      const sharedErrorLines = [
+        'this should never happen and is very likely a bug in your code -',
+        'please investigate and create a GitHub issue if you believe this is a bug.',
+      ];
+
       // [DEV] - How do we cast Interaction<CacheType> from listener
       // to I extends BaseInteraction - we can't use generics because
       // we don't know the type of the interaction at compile time
@@ -329,48 +346,44 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         if (!interaction.isChatInputCommand()) {
           throw new Error([
             `Interaction for ChatInputCommand "${commandId}" is not a ChatInputCommand interaction,`,
-            'this should never happen and is very likely a bug in your code - please investigate',
-            'and create a GitHub issue if you believe this is a bug.',
+            ...sharedErrorLines,
           ].join(' '));
         }
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else if (command instanceof UserContextCommand) {
         if (!interaction.isUserContextMenuCommand()) {
           throw new Error([
             `Interaction for UserContextCommand "${commandId}" is not a UserContextCommand interaction,`,
-            'this should never happen and is very likely a bug in your code - please investigate',
-            'and create a GitHub issue if you believe this is a bug.',
+            ...sharedErrorLines,
           ].join(' '));
         }
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else if (command instanceof MessageContextCommand) {
         if (!interaction.isMessageContextMenuCommand()) {
           throw new Error([
             `Interaction for MessageContextCommand "${commandId}" is not a MessageContextCommand interaction,`,
-            'this should never happen and is very likely a bug in your code - please investigate',
-            'and create a GitHub issue if you believe this is a bug.',
+            ...sharedErrorLines,
           ].join(' '));
         }
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else if (interaction.isMessageComponent()) {
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else if (interaction.isModalSubmit()) {
         if (!(command instanceof ModalCommand)) {
           throw new Error([
             `Interaction for ModalCommand "${commandId}" is not a ModalCommand interaction,`,
-            'this should never happen and is very likely a bug in your code - please investigate',
-            'and create a GitHub issue if you believe this is a bug.',
+            ...sharedErrorLines,
           ].join(' '));
         }
-        await command.handleInteraction(interaction, this, middlewareContext);
+        await command.handleInteraction(interaction, readyClient, middlewareContext);
       }
 
       else { // Unknown command type

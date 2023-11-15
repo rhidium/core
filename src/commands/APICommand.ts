@@ -23,7 +23,9 @@ export type APICommandData =
   >
   | ContextMenuCommandBuilder;
 
-export interface APICommandOptions<I extends BaseInteraction>
+export interface APICommandOptions<
+  I extends BaseInteraction = BaseInteraction,
+>
   extends BaseCommandOptions<I> {
   /**
    * Indicates if this command is available globally. If
@@ -36,7 +38,9 @@ export interface APICommandOptions<I extends BaseInteraction>
 /**
  * Represents a Discord API Command, chat-input commands, user- and message-context commands, etc.
  */
-export class APICommand<I extends BaseInteraction = BaseInteraction>
+export class APICommand<
+  I extends BaseInteraction = BaseInteraction,
+>
   extends BaseCommand<I>
   implements APICommandOptions<I>
 {

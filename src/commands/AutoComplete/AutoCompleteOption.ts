@@ -100,10 +100,15 @@ export class AutoCompleteOption<T = undefined> {
   trimQuery = true;
   lowercaseQuery = true;
   suppressUnknownInteractionErrors = false;
-  addOptionHandler = (i: SlashCommandStringOption) => i
-    .setAutocomplete(true)
-    .setName(this.name)
-    .setDescription(this.data.description);
+  addOptionHandler = (i: SlashCommandStringOption) => {
+    i.setAutocomplete(true)
+      .setName(this.name)
+      .setDescription(this.data.description)
+      .setRequired(this.data.required);
+    if (this.data.min_length) i.setMinLength(this.data.min_length);
+    if (this.data.max_length) i.setMaxLength(this.data.max_length);
+    return i;
+  };
   constructor(options: AutoCompleteOptions<T>, client?: Client<true>) {
     this.name = options.name;
     const data = new SlashCommandStringOption()

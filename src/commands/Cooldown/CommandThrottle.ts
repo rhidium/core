@@ -57,11 +57,11 @@ export interface CommandThrottleOptions {
    * Whether the cooldown should persist across restarts
    * 
    * NOTE: This is ONLY a convenience option for the developer, we do
-   * not implement any persistence for you, you must do yourself by 
+   * not implement any persistence for you, you must do so yourself by 
    * using persistent command cooldown middleware. We have an example
-   * of this on the main repository
+   * of this on the main template/example repository
    * 
-   * @see https://github.com/rhidium/ts-discord-template
+   * @see https://github.com/rhidium/template
    */
   persistent?: boolean;
 }

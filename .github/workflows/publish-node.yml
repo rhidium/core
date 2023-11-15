@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
+      - run: npm install
       # NPM doesn't install devDependencies when a user downloads our package
       # but it sill counts them in the project dependency count.
       - run: npm pkg delete devDependencies
@@ -43,7 +43,7 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://npm.pkg.github.com'
-      - run: npm ci
+      - run: npm install
       - run: npm run build
       - run: npm publish
         env:
