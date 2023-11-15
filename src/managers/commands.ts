@@ -521,8 +521,14 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const handler = require(resolvedPath);
+      if (!(handler.default instanceof AutoCompleteOption)) {
+        this.client.logger.warn(
+          `Skipping non-auto-complete file: ${FileUtils.getProjectRelativePath(resolvedPath)}`,
+        );
+        continue;
+      }
       handler.default.client = this.client;
-      collection.set(handler.default.name, handler.default as AutoCompleteOption);
+      collection.set(handler.default.name, handler.default);
       added.push(handler.default);
     }
     return {
@@ -543,7 +549,13 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const handler = require(resolvedPath);
-      collection.set(handler.default.id, handler.default as Job);
+      if (!(handler.default instanceof Job)) {
+        this.client.logger.warn(
+          `Skipping non-job file: ${FileUtils.getProjectRelativePath(resolvedPath)}`,
+        );
+        continue;
+      }
+      collection.set(handler.default.id, handler.default);
       added.push(handler.default);
     }
     return {
@@ -564,8 +576,14 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const listener = require(resolvedPath);
+      if (!(listener.default instanceof ClientEventListener)) {
+        this.client.logger.warn(
+          `Skipping non-listener file: ${FileUtils.getProjectRelativePath(resolvedPath)}`,
+        );
+        continue;
+      }
       listener.default.client = this.client;
-      collection.set(listener.default.event, listener.default as ClientEventListener);
+      collection.set(listener.default.event, listener.default);
       added.push(listener.default);
       listener.default.register(this.client);
     }
@@ -824,7 +842,7 @@ export class CommandManager {
           ...newCfg,
           aliases: [],
           aliasOf: command,
-        }) as CommandType;
+        });
         // Note: Without doing this, changing alias data
         // will overwrite initial/parent data as well
         const newData = Object.assign({ name: aliasStr }, command.data);
