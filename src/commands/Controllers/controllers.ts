@@ -11,51 +11,27 @@ export type Controller<
 
 export type CommandController<
   I extends BaseInteraction,
+  FromModule extends Module | null = null,
   AdditionalParams extends unknown[] = [],
 > = Controller<
-  [...Parameters<RunFunction<I>>, ...AdditionalParams],
-  ReturnType<RunFunction<I>>
+  [...Parameters<RunFunction<FromModule, I>>, ...AdditionalParams],
+  ReturnType<RunFunction<FromModule, I>>
 >;
 
 export type DMCommandController<
   I extends BaseInteraction,
+  FromModule extends Module | null = null,
   AdditionalParams extends unknown[] = [],
 > = Controller<
   [Client, DMInteraction<I>, ...AdditionalParams],
-  ReturnType<RunFunction<I>>
+  ReturnType<RunFunction<FromModule, I>>
 >;
 
 export type GuildCommandController<
   I extends BaseInteraction,
+  FromModule extends Module | null = null,
   AdditionalParams extends unknown[] = [],
 > = Controller<
   [Client, AvailableGuildInteraction<I>, ...AdditionalParams, ],
-  ReturnType<RunFunction<I>>
->;
-
-export type ModuleCommandController<
-  I extends BaseInteraction,
-  AdditionalParams extends unknown[] = [],
-  FromModule extends Module | null = null
-> = Controller<
-  [...Parameters<RunFunction<I, FromModule>>, ...AdditionalParams],
-  ReturnType<RunFunction<I, FromModule>>
->;
-
-export type ModuleDMCommandController<
-  I extends BaseInteraction,
-  AdditionalParams extends unknown[] = [],
-  FromModule extends Module | null = null
-> = Controller<
-  [Client, DMInteraction<I>, ...AdditionalParams],
-  ReturnType<RunFunction<I, FromModule>>
->;
-
-export type ModuleGuildCommandController<
-  I extends BaseInteraction,
-  AdditionalParams extends unknown[] = [],
-  FromModule extends Module | null = null
-> = Controller<
-  [Client, AvailableGuildInteraction<I>, ...AdditionalParams],
-  ReturnType<RunFunction<I, FromModule>>
+  ReturnType<RunFunction<FromModule, I>>
 >;

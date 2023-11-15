@@ -18,10 +18,10 @@ export const isComponentCommand = (item: unknown): item is ComponentCommand =>
   || item instanceof SelectMenuCommand;
 
 export interface ComponentCommandOptions<
-  I extends BaseInteraction,
-  FromModule extends Module | null = null
+  FromModule extends Module | null = null,
+  I extends BaseInteraction = BaseInteraction,
 >
-  extends BaseCommandOptions<I, FromModule | null>,
+  extends BaseCommandOptions<FromModule, I>,
     ComponentCommandDataOptions {
   /**
    * Indicates if the Component is only usable by the member who initiated it, or everyone that can view the component
@@ -40,16 +40,16 @@ export interface ComponentCommandDataOptions {
  * Represents a command that is executed through a component, a button, modal, select-menu, etc.
  */
 export class ComponentCommandBase<
+  FromModule extends Module | null = null,
   I extends BaseInteraction = BaseInteraction,
-  FromModule extends Module | null = null
 >
   extends BaseCommand<I, FromModule | null>
-  implements ComponentCommandOptions<I, FromModule | null>
+  implements ComponentCommandOptions<FromModule | null, I>
 {
   isUserComponent: boolean;
   customId: string;
   type: ComponentCommandType;
-  constructor(options: ComponentCommandOptions<I, FromModule | null>) {
+  constructor(options: ComponentCommandOptions<FromModule | null, I>) {
     super(options);
     this.isUserComponent = options.isUserComponent ?? true;
     this.data = { name: options.customId };

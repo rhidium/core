@@ -85,8 +85,8 @@ export const isDataBasedCommand = (item: unknown): item is APICommandType =>
 export const DEFAULT_SOURCE_FILE_STRING = 'uninitialized/ghost command';
 
 export type RunFunction<
-  I extends BaseInteraction,
-  FromModule extends Module | null = null
+  FromModule extends Module | null = null,
+  I extends BaseInteraction = BaseInteraction,
 > = (
   /** The client that received this interaction */
   client: Client<true>,
@@ -100,8 +100,8 @@ export type RunFunction<
  * Represents a client command configuration object
  */
 export interface BaseCommandOptions<
-  I extends BaseInteraction,
-  FromModule extends Module | null = null
+  FromModule extends Module | null = null,
+  I extends BaseInteraction = BaseInteraction,
 > {
   /**
    * The permission level required to use the command
@@ -190,7 +190,7 @@ export interface BaseCommandOptions<
    * @param client The client instance
    * @param interaction The interaction that triggered this command
    */
-  run: RunFunction<I, FromModule>;
+  run: RunFunction<FromModule, I>;
   /**
    * Middleware for this command
    *
@@ -261,7 +261,7 @@ export class BaseCommand<
   guildOnly = true;
   isEphemeral = false;
   deferReply = false;
-  run: RunFunction<I, FromModule>;
+  run: RunFunction<FromModule, I>;
   data: ComponentCommandData = { name: '' };
   middleware: CommandMiddleware<I, CommandMiddlewareContext<I>>;
   sourceHash = DEFAULT_SOURCE_FILE_STRING;
@@ -282,7 +282,7 @@ export class BaseCommand<
   aliasOf: CommandType | null = null;
 
   constructor(
-    options: BaseCommandOptions<I, FromModule>,
+    options: BaseCommandOptions<FromModule, I>,
     client?: Client,
     manager?: CommandManager,
   ) {

@@ -6,14 +6,14 @@ import { Module } from '..';
  * Represents a command that is executed through a button component
  */
 export class ButtonCommand<
+  FromModule extends Module | null = null,
   I extends ButtonInteraction = ButtonInteraction,
-  FromModule extends Module | null = null
 >
-  extends ComponentCommandBase<I, FromModule | null>
-  implements ComponentCommandOptions<I, FromModule | null>
+  extends ComponentCommandBase<FromModule | null, I>
+  implements ComponentCommandOptions<FromModule | null, I>
 {
   override type = ComponentCommandType.BUTTON;
-  constructor(options: ComponentCommandOptions<I, FromModule | null>) {
+  constructor(options: ComponentCommandOptions<FromModule | null, I>) {
     super(options);
   }
 }

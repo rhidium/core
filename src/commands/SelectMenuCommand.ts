@@ -6,14 +6,14 @@ import { Module } from '..';
  * Represents a command that is executed through a Select Menu component
  */
 export class SelectMenuCommand<
+  FromModule extends Module | null = null,
   I extends AnySelectMenuInteraction = AnySelectMenuInteraction,
-  FromModule extends Module | null = null
 >
-  extends ComponentCommandBase<I, FromModule | null>
-  implements ComponentCommandOptions<I, FromModule | null>
+  extends ComponentCommandBase<FromModule | null, I>
+  implements ComponentCommandOptions<FromModule | null, I>
 {
   override type = ComponentCommandType.SELECT_MENU;
-  constructor(options: ComponentCommandOptions<I, FromModule | null>) {
+  constructor(options: ComponentCommandOptions<FromModule | null, I>) {
     super(options);
   }
 }

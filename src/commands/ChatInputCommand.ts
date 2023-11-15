@@ -3,10 +3,10 @@ import { APICommand, APICommandOptions } from './APICommand';
 import { Module } from '..';
 
 export interface ChatInputCommandOptions<
-  I extends ChatInputCommandInteraction,
-  FromModule extends Module | null = null
+  FromModule extends Module | null = null,
+  I extends ChatInputCommandInteraction = ChatInputCommandInteraction,
 >
-  extends APICommandOptions<I, FromModule> {
+  extends APICommandOptions<FromModule, I> {
   /** Command data to send off to the Discord API, resolved by builder */
   data:
     | SlashCommandBuilder
@@ -29,11 +29,11 @@ export interface ChatInputCommandOptions<
  * Represents a command with chat input, aka: a Slash command (/)
  */
 export class ChatInputCommand<
-    I extends ChatInputCommandInteraction = ChatInputCommandInteraction,
-    FromModule extends Module | null = null
-  >
-  extends APICommand<I, FromModule | null>
-  implements ChatInputCommandOptions<I, FromModule | null>
+  FromModule extends Module | null = null,
+  I extends ChatInputCommandInteraction = ChatInputCommandInteraction,
+>
+  extends APICommand<FromModule | null, I>
+  implements ChatInputCommandOptions<FromModule | null, I>
 {
   override data:
     | SlashCommandBuilder
@@ -51,7 +51,7 @@ export class ChatInputCommand<
         | 'addNumberOption'
       >;
 
-  constructor(options: ChatInputCommandOptions<I, FromModule | null>) {
+  constructor(options: ChatInputCommandOptions<FromModule | null, I>) {
     super(options);
     this.data = options.data;
   }

@@ -25,10 +25,10 @@ export type APICommandData =
   | ContextMenuCommandBuilder;
 
 export interface APICommandOptions<
-  I extends BaseInteraction,
-  FromModule extends Module | null = null
+  FromModule extends Module | null = null,
+  I extends BaseInteraction = BaseInteraction,
 >
-  extends BaseCommandOptions<I, FromModule> {
+  extends BaseCommandOptions<FromModule, I> {
   /**
    * Indicates if this command is available globally. If
    * NODE_ENV is `production` it will default to `true`. If NODE_ENV
@@ -41,14 +41,14 @@ export interface APICommandOptions<
  * Represents a Discord API Command, chat-input commands, user- and message-context commands, etc.
  */
 export class APICommand<
+  FromModule extends Module | null = null,
   I extends BaseInteraction = BaseInteraction,
-  FromModule extends Module | null = null
 >
   extends BaseCommand<I, FromModule | null>
-  implements APICommandOptions<I, FromModule | null>
+  implements APICommandOptions<FromModule | null, I>
 {
   global: boolean;
-  constructor(options: APICommandOptions<I, FromModule | null>) {
+  constructor(options: APICommandOptions<FromModule | null, I>) {
     super(options);
     this.global = options.global ?? process.env.NODE_ENV === 'production';
   }
