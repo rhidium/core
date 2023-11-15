@@ -146,9 +146,9 @@ export class Embeds implements EmbedsOptions {
    * 
    * The following structure is expected (all in description field):
    * - title
-   * - ``` (codeblock start)
+   * - (codeblock start) ```
    * - ...description
-   * - ``` (codeblock end)
+   * - (codeblock end) ```
    */
   static readonly extractCodeblockDescription = (embed: EmbedBuilder) => {
     if (!embed.data.description) return undefined;
