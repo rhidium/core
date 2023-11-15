@@ -1,7 +1,7 @@
 import { readFile, mkdir } from 'fs/promises';
 import fse, { writeFile } from 'fs-extra';
 import {readFileSync} from 'fs';
-import { IntentsBitField, LocaleString } from 'discord.js';
+import { IntentsBitField } from 'discord.js';
 import {
   AutoCompleteOption,
   ChatInputCommand,
@@ -42,14 +42,9 @@ export type SourceCodeDirectories = {
   packageJson?: string;
 }
 
-export type ModuleLocalization = Partial<{
-  [locale in LocaleString]: Record<string, unknown>;
-}>;
-
 export interface ModuleOptions {
   name: string;
   directories: Client['directories'];
-  localization?: ModuleLocalization;
   /**
    * The source code directories for the module.
    * Only used when #eject is called on official/public modules
@@ -90,8 +85,6 @@ export class Module {
   intents: IntentsBitField[] = [];
   extensions: Record<string, unknown> = {};
   official: boolean;
-  localization: ModuleLocalization;
-  locales: LocaleString[];
   constructor(options: ModuleOptions) {
     this.name = options.name;
     this.disabled = options.disabled ?? false;
@@ -103,9 +96,6 @@ export class Module {
     const pkg = JSON.parse(pkgString);
     this.official = pkg.name ? officialModules.includes(pkg.name as OfficialModule) : false;
     this.version = pkg.version ?? '0.0.0';
-    this.localization = options.localization ?? {};
-    this.locales = Object.keys(this.localization) as LocaleString[];
-
     this.tag = `[Module:${this.name}@${this.version}]`;
     this.directories = {
       chatInputs: options.directories.chatInputs ?? [],
@@ -135,11 +125,6 @@ export class Module {
       preRunThrottle,
       runExecutionReturnValues,
     } = client.globalMiddleware;
-
-    Object.entries(this.localization).forEach(([locale, namespaces]) => {
-      client.logger.debug(`${this.tag} Registering locale ${locale} - namespaces: ${Object.keys(namespaces).length}`);
-      client.I18N.addResourceBundle(locale, this.name, namespaces, true);
-    });
 
     this.pieces = client.commandManager.initializeModule(this);
 
