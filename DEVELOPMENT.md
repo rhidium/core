@@ -2,6 +2,8 @@
 
 ## Developing Modules
 
+- Peer dependencies: <https://nodejs.org/en/blog/npm/peer-dependencies>
+
 ### Module
 
 - Use the latest version of `core` in your module: `npm i @rhidium/core@latest`
