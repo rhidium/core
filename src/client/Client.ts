@@ -234,6 +234,9 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
     return this.modules.map((module) => module.directories);
   }
 
+  /**
+   * All directories, with modules merged
+   */
   get mergedDirectories () {
     const moduleDirectories = this.moduleDirectories;
     return {
@@ -257,7 +260,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
   initialize(): this {
     this.printVanity();
     this.registerEssentialListeners();
-    this.commandManager.initialize(this.mergedDirectories);
+    this.commandManager.initialize(this.directories);
     this.loadModules();
     return this;
   }
