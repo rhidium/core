@@ -25,7 +25,6 @@ import {
   ComponentCommandBase,
   MessageContextCommand,
   UserContextCommand,
-  isCommand,
 } from '../commands';
 import {
   CommandCooldownType,
@@ -46,7 +45,7 @@ import { EmbedConstants, UnitConstants } from '../constants';
 import { ClientEventListener } from '.';
 import { stripIndents } from 'common-tags';
 import { Job } from '../jobs';
-import { Module, ModulePieces, officialModules } from '..';
+import { Module, ModulePieces } from '..';
 
 export type ExcludedCommandNames =
   'components' | 'options' | 'types' | 'helpers' | 'controllers' | 'services' | 'transformers' | 'enums'
@@ -358,14 +357,11 @@ export class CommandManager {
         if (typeof cmd === 'object' && cmd !== null && 'default' in cmd)
           cmd = cmd.default;
 
-        // [DEV]: Not fool proof, but should work for most cases
-        const isFromOfficialModule = officialModules.some((e) => cmdPath.includes(e));
-
-        if (isFromOfficialModule || isCommand(cmd)) commands.set(cmdPath, cmd as T);
-        else this.client.logger.warn(
-          // Not CommandType - can't use sourceFile or sourceFileStackTrace, .etc
-          `Expected a CommandType to be exported, skipping...\n    at ${cmdPath}`,
-        );
+        // Note: We have a static structure.
+        // Random files shouldn't be exported as commands/components
+        // we need this as cast to allow local development of modules (npm link)
+        // Without it, what's the use of an ecosystem if developing modules is garbage
+        commands.set(cmdPath, cmd as T);
       }
     }
 
@@ -626,16 +622,9 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const handler = require(resolvedPath);
-      const isFromOfficialModule = officialModules.some((e) => filePath.includes(e));
-      if (isFromOfficialModule || handler?.default instanceof AutoCompleteOption) {
-        handler.default.client = this.client;
-        collection.set(handler.default.name, handler.default);
-        added.push(handler.default);
-      } else {
-        this.client.logger.debug(
-          `Expected instanceof AutoCompleteOption to be exported, skipping: ${resolvedPath}`,
-        );
-      }
+      handler.default.client = this.client;
+      collection.set(handler.default.name, handler.default as AutoCompleteOption);
+      added.push(handler.default);
     }
     return {
       collection,
@@ -655,15 +644,8 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const handler = require(resolvedPath);
-      const isFromOfficialModule = officialModules.some((e) => filePath.includes(e));
-      if (isFromOfficialModule || handler?.default instanceof Job) {
-        collection.set(handler.default.id, handler.default);
-        added.push(handler.default);
-      } else {
-        this.client.logger.debug(
-          `Expected instanceof Job to be exported, skipping: ${resolvedPath}`,
-        );
-      }
+      collection.set(handler.default.id, handler.default as Job);
+      added.push(handler.default);
     }
     return {
       collection,
@@ -683,17 +665,10 @@ export class CommandManager {
       const resolvedPath = path.resolve(filePath);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const listener = require(resolvedPath);
-      const isFromOfficialModule = officialModules.some((e) => filePath.includes(e));
-      if (isFromOfficialModule || listener?.default instanceof ClientEventListener) {
-        listener.default.client = this.client;
-        collection.set(listener.default.event, listener.default);
-        added.push(listener.default);
-        listener.default.register(this.client);
-      } else {
-        this.client.logger.debug(
-          `Expected instanceof ClientEventListener to be exported, skipping: ${resolvedPath}`,
-        );
-      }
+      listener.default.client = this.client;
+      collection.set(listener.default.event, listener.default as ClientEventListener);
+      added.push(listener.default);
+      listener.default.register(this.client);
     }
     return {
       collection,
