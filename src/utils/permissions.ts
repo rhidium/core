@@ -10,6 +10,7 @@ import {
   Snowflake,
 } from 'discord.js';
 import { StringUtils } from '.';
+import { CommandType } from '..';
 
 const validPermValues = Object.values(PermissionsBitField.Flags);
 
@@ -133,6 +134,11 @@ const resolveMemberPermLevel = async (
   return PermLevel.User;
 };
 
+const uniqueCommandPermissions = (commands: CommandType[]) => [ ...new Set(commands.reduce((acc, cmd) => {
+  const permissions = cmd.clientPerms;
+  return [ ...acc, ...permissions ];
+}, [])) ];
+
 export class PermissionUtils {
   static readonly validPermValues = validPermValues;
   static readonly permissionEmojis = permissionEmojis;
@@ -140,4 +146,5 @@ export class PermissionUtils {
   static readonly getInvalidPerms = getInvalidPerms;
   static readonly hasChannelPerms = hasChannelPerms;
   static readonly resolveMemberPermLevel = resolveMemberPermLevel;
+  static readonly uniqueCommandPermissions = uniqueCommandPermissions;
 }
