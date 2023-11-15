@@ -156,7 +156,7 @@ export interface BaseCommandOptions<
    * Note: This is NOT persistent, for that, you should use your own
    * persistent cooldown middleware
    */
-  cooldown?: CommandThrottleOptions | CommandThrottle;
+  cooldown?: CommandThrottleOptions;
   /**
    * This command's category, if omitted, the command's origin file's parent folder name will be parsed and used
    * @default 'file parent folder name'
@@ -794,11 +794,6 @@ export class BaseCommand<
         middlewareContext,
         middleware.preRunThrottle,
       )) return false;
-
-      // Note: we have since removed persistent cooldown
-      // from the package as it requires a database to scale
-      // Persistent cooldown requested, defer reply
-      // if (this.cooldown.persistent) await this.deferReplyInternal(interaction);
 
       // Should only apply to "successful" commands -
       // otherwise failed-constraints commands will
