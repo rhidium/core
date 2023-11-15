@@ -1,15 +1,19 @@
 import { AnySelectMenuInteraction } from 'discord.js';
 import { ComponentCommandBase, ComponentCommandOptions, ComponentCommandType } from './ComponentCommandBase';
+import { Module } from '..';
 
 /**
  * Represents a command that is executed through a Select Menu component
  */
-export class SelectMenuCommand<I extends AnySelectMenuInteraction = AnySelectMenuInteraction>
-  extends ComponentCommandBase<I>
-  implements ComponentCommandOptions<I>
+export class SelectMenuCommand<
+  I extends AnySelectMenuInteraction = AnySelectMenuInteraction,
+  FromModule extends Module | null = null
+>
+  extends ComponentCommandBase<I, FromModule | null>
+  implements ComponentCommandOptions<I, FromModule | null>
 {
   override type = ComponentCommandType.SELECT_MENU;
-  constructor(options: ComponentCommandOptions<I>) {
+  constructor(options: ComponentCommandOptions<I, FromModule | null>) {
     super(options);
   }
 }

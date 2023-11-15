@@ -1,6 +1,7 @@
 import { BaseInteraction } from 'discord.js';
 import { BaseCommand, BaseCommandOptions } from './BaseCommand';
 import { ButtonCommand, ModalCommand, SelectMenuCommand } from '.';
+import { Module } from '..';
 
 export enum ComponentCommandType {
   BUTTON = 900,
@@ -16,8 +17,11 @@ export const isComponentCommand = (item: unknown): item is ComponentCommand =>
   || item instanceof ModalCommand
   || item instanceof SelectMenuCommand;
 
-export interface ComponentCommandOptions<I extends BaseInteraction>
-  extends BaseCommandOptions<I>,
+export interface ComponentCommandOptions<
+  I extends BaseInteraction,
+  FromModule extends Module | null = null
+>
+  extends BaseCommandOptions<I, FromModule | null>,
     ComponentCommandDataOptions {
   /**
    * Indicates if the Component is only usable by the member who initiated it, or everyone that can view the component
@@ -35,14 +39,17 @@ export interface ComponentCommandDataOptions {
 /**
  * Represents a command that is executed through a component, a button, modal, select-menu, etc.
  */
-export class ComponentCommandBase<I extends BaseInteraction = BaseInteraction>
-  extends BaseCommand<I>
-  implements ComponentCommandOptions<I>
+export class ComponentCommandBase<
+  I extends BaseInteraction = BaseInteraction,
+  FromModule extends Module | null = null
+>
+  extends BaseCommand<I, FromModule | null>
+  implements ComponentCommandOptions<I, FromModule | null>
 {
   isUserComponent: boolean;
   customId: string;
   type: ComponentCommandType;
-  constructor(options: ComponentCommandOptions<I>) {
+  constructor(options: ComponentCommandOptions<I, FromModule | null>) {
     super(options);
     this.isUserComponent = options.isUserComponent ?? true;
     this.data = { name: options.customId };

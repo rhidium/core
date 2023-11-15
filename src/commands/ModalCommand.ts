@@ -4,7 +4,9 @@ import { ComponentCommandBase, ComponentCommandOptions, ComponentCommandType } f
 /**
  * Represents a command that is executed through a modal component
  */
-export class ModalCommand<I extends ModalSubmitInteraction = ModalSubmitInteraction>
+export class ModalCommand<
+  I extends ModalSubmitInteraction = ModalSubmitInteraction
+>
   extends ComponentCommandBase<I>
   implements ComponentCommandOptions<I>
 {

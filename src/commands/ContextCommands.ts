@@ -4,10 +4,12 @@ import {
   UserContextMenuCommandInteraction,
 } from 'discord.js';
 import { APICommand, APICommandOptions } from './APICommand';
+import { Module } from '..';
 
 export interface ContextMenuCommandOptions<
   I extends UserContextMenuCommandInteraction,
-> extends APICommandOptions<I> {
+  FromModule extends Module | null = null,
+> extends APICommandOptions<I, FromModule> {
   /** Command data to send off to the Discord API, resolved by builder */
   data?: ContextMenuCommandBuilder;
 }
@@ -16,12 +18,13 @@ export interface ContextMenuCommandOptions<
 export class UserContextCommand<
     I extends
       UserContextMenuCommandInteraction = UserContextMenuCommandInteraction,
+    FromModule extends Module | null = null,
   >
-  extends APICommand<I>
-  implements ContextMenuCommandOptions<I>
+  extends APICommand<I, FromModule | null>
+  implements ContextMenuCommandOptions<I, FromModule | null>
 {
   override data: ContextMenuCommandBuilder;
-  constructor(options: ContextMenuCommandOptions<I>) {
+  constructor(options: ContextMenuCommandOptions<I, FromModule | null>) {
     super(options);
     this.data = options.data ?? new ContextMenuCommandBuilder();
     this.data.setType(2);
@@ -30,7 +33,8 @@ export class UserContextCommand<
 
 export interface MessageContextCommandOptions<
   I extends MessageContextMenuCommandInteraction,
-> extends APICommandOptions<I> {
+  FromModule extends Module | null = null,
+> extends APICommandOptions<I, FromModule> {
   /** Command data to send off to the Discord API, resolved by builder */
   data?: ContextMenuCommandBuilder;
 }
@@ -39,12 +43,13 @@ export interface MessageContextCommandOptions<
 export class MessageContextCommand<
     I extends
       MessageContextMenuCommandInteraction = MessageContextMenuCommandInteraction,
+    FromModule extends Module | null = null,
   >
-  extends APICommand<I>
-  implements MessageContextCommandOptions<I>
+  extends APICommand<I, FromModule | null>
+  implements MessageContextCommandOptions<I, FromModule | null>
 {
   override data: ContextMenuCommandBuilder;
-  constructor(options: MessageContextCommandOptions<I>) {
+  constructor(options: MessageContextCommandOptions<I, FromModule | null>) {
     super(options);
     this.data = options.data ?? new ContextMenuCommandBuilder();
     this.data.setType(3);
