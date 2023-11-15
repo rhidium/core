@@ -1,6 +1,6 @@
 {
   "name": "@rhidium/core",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "Quickly and easily create powerful Discord bots using plug-and-play modules",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
