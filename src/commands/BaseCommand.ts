@@ -231,6 +231,8 @@ export interface BaseCommandOptions<
   // | CreateMiddleware<CommandMiddlewareContext<I, Command>>
   middleware?: CommandMiddlewareOptions<I, CommandMiddlewareContext<I>>;
   // | CreateMiddleware<CommandMiddlewareContext<I, Command>>[];
+  // [DEV]
+  // Module should be required if FromModule is not null
   module?: FromModule;
 }
 
@@ -246,7 +248,7 @@ export class BaseCommand<
   I extends BaseInteraction = BaseInteraction,
   FromModule extends Module | null = null
 > {
-  module: FromModule | null = null;
+  module: FromModule | null;
   client?: Client;
   collection?: Collection<string, CommandType>;
   manager?: CommandManager;
@@ -853,9 +855,10 @@ export class BaseCommand<
     )) return false;
 
     // Run/execute the command
+    const originModule = client.modules.find((e) => e.name === this.module?.name) ?? null;
     const tryRunResult = await DiscordLogger.tryWithErrorLogging(
       client,
-      () => this.run.call(this, client, interaction, this.module as FromModule),
+      () => this.run.call(this, client, interaction, originModule as FromModule),
       'An error occurred while running a command',
     );
 
