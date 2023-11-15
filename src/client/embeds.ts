@@ -129,4 +129,34 @@ export class Embeds implements EmbedsOptions {
   info = (data: CreateStatusEmbedData) => this.status('info', data);
   debug = (data: CreateStatusEmbedData) => this.status('debug', data);
   waiting = (data: CreateStatusEmbedData) => this.status('waiting', data);
+
+  /**
+   * Extracts the description from an embed, removing the custom header
+   * these embeds have in the description.
+   */
+  static readonly extractDescription = (embed: EmbedBuilder) => {
+    if (!embed.data.description) return undefined;
+    const [ , ...description ] = embed.data.description.split('\n');
+    return description.join('\n');
+  };
+
+  /**
+   * Extracts the description from an embed, removing the custom header
+   * these embeds have in the description, and the codeblock.
+   * 
+   * The following structure is expected (all in description field):
+   * - title
+   * - ``` (codeblock start)
+   * - ...description
+   * - ``` (codeblock end)
+   */
+  static readonly extractCodeblockDescription = (embed: EmbedBuilder) => {
+    if (!embed.data.description) return undefined;
+    const [
+      , // Title
+      , // Codeblock start,
+      ...description ] = embed.data.description.split('\n');
+    description.pop(); // Codeblock end
+    return description.join('\n');
+  };
 }
