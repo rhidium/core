@@ -256,18 +256,16 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
 
   initialize(): this {
     this.printVanity();
-    this.loadModules();
-    this.commandManager.initialize(this.mergedDirectories);
     this.registerEssentialListeners();
+    this.commandManager.initialize(this.mergedDirectories);
+    this.loadModules();
     return this;
   }
 
   loadModules = () => {
     this.logger.debug('Loading modules');
-    this.modules.forEach((module) => {
-      module.register(this);
-    });
     this.loadNPMModules();
+    this.modules.forEach((mod) => mod.register(this));
   };
 
   loadNPMModules = () => {

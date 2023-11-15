@@ -46,7 +46,7 @@ import { EmbedConstants, UnitConstants } from '../constants';
 import { ClientEventListener } from '.';
 import { stripIndents } from 'common-tags';
 import { Job } from '../jobs';
-import { officialModules } from '..';
+import { Module, ModulePieces, officialModules } from '..';
 
 export type ExcludedCommandNames =
   'components' | 'options' | 'types' | 'helpers' | 'controllers' | 'services' | 'transformers' | 'enums'
@@ -89,6 +89,18 @@ export interface CommandManagerCommandsOptions {
   jobs?: Directories;
 }
 
+export type PiecesCollections<
+  FromModule extends Module | null = null
+> = {
+  listenersCollection: Collection<string, ClientEventListener>;
+  autoCompletesCollection: Collection<string, AutoCompleteOption>;
+  jobsCollection: Collection<string, Job>;
+  chatInputsCollection: Collection<string, ChatInputCommand<FromModule>>;
+  userContextMenusCollection: Collection<string, UserContextCommand<FromModule>>;
+  messageContextMenusCollection: Collection<string, MessageContextCommand<FromModule>>;
+  componentCommandsCollection: Collection<string, ComponentCommandBase<FromModule>>;
+};
+
 export interface CommandManagerOptions {
   client: Client;
 }
@@ -96,10 +108,10 @@ export interface CommandManagerOptions {
 export class CommandManager {
   readonly client: Client;
   listeners = new Collection<string, ClientEventListener>();
-  chatInput = new Collection<string, ChatInputCommand>();
-  userContextMenus = new Collection<string, UserContextCommand>();
-  messageContextMenus = new Collection<string, MessageContextCommand>();
-  componentCommands = new Collection<string, ComponentCommandBase>();
+  chatInput = new Collection<string, ChatInputCommand<Module | null>>();
+  userContextMenus = new Collection<string, UserContextCommand<Module | null>>();
+  messageContextMenus = new Collection<string, MessageContextCommand<Module | null>>();
+  componentCommands = new Collection<string, ComponentCommandBase<Module | null>>();
   autoComplete = new Collection<string, AutoCompleteOption>();
   jobs = new Collection<string, Job>();
   get commandSize() {
@@ -366,7 +378,11 @@ export class CommandManager {
   loadCommandCollection<T extends CommandType>(
     dirPath: Directories,
     collection: Collection<string, T>,
-  ): Collection<string, T> {
+  ): {
+    collection: Collection<string, T>;
+    added: T[];
+  } {
+    const added: T[] = [];
     const { logger } = this.client;
     const commands = this.findCommandsInFolder<T>(dirPath);
     const dirPaths = typeof dirPath === 'string' ? [dirPath] : dirPath;
@@ -375,7 +391,10 @@ export class CommandManager {
     // Warning, empty command folder provided - return early
     if (commands.size === 0) {
       logger.warn(`No commands found in provided directory: ${dirPathOutput}`);
-      return collection;
+      return {
+        collection,
+        added: [],
+      };
     }
 
     for (const [cmdPath, command] of commands) {
@@ -431,9 +450,13 @@ export class CommandManager {
 
       // Register the command
       collection.set(command.data.name, command);
+      added.push(command);
     }
 
-    return collection;
+    return {
+      collection,
+      added,
+    };
   }
 
   initialize = ({
@@ -445,65 +468,157 @@ export class CommandManager {
     componentCommands,
     jobs,
   }: CommandManagerCommandsOptions) => {
+    const jobsCollection = new Collection<string, Job>();
+    const listenersCollection = new Collection<string, ClientEventListener>();
+    const autoCompletesCollection = new Collection<string, AutoCompleteOption>();
+    const chatInputsCollection = new Collection<string, ChatInputCommand<Module | null>>();
+    const userContextMenusCollection = new Collection<string, UserContextCommand<Module | null>>();
+    const messageContextMenusCollection = new Collection<string, MessageContextCommand<Module | null>>();
+    const componentCommandsCollection = new Collection<string, ComponentCommandBase<Module | null>>();
+
     if (listeners) {
       this.directories.listeners = listeners;
-      const resolvedListeners = this.resolveListeners(
-        listeners,
-        new Collection<string, ClientEventListener>(),
-      );
-      this.listeners = resolvedListeners;
+      const resolvedListeners = this.resolveListeners(listeners, listenersCollection);
+      this.listeners = resolvedListeners.collection;
     }
     if (chatInputs) {
       this.directories.chatInputs = chatInputs;
-      const commands = this.loadCommandCollection(
-        chatInputs,
-        new Collection<string, ChatInputCommand>(),
-      );
-      this.chatInput = commands;
+      const commands = this.loadCommandCollection(chatInputs, chatInputsCollection);
+      this.chatInput = commands.collection;
     }
     if (autoCompletes) {
       this.directories.autoCompletes = autoCompletes;
-      const commands = this.resolveAutoCompletes(
-        autoCompletes,
-        new Collection<string, AutoCompleteOption>(),
-      );
-      this.autoComplete = commands;
+      const commands = this.resolveAutoCompletes(autoCompletes, autoCompletesCollection);
+      this.autoComplete = commands.collection;
     }
     if (userContextMenus) {
       this.directories.userContextMenus = userContextMenus;
-      const commands = this.loadCommandCollection(
-        userContextMenus,
-        new Collection<string, UserContextCommand>(),
-      );
-      this.userContextMenus = commands;
+      const commands = this.loadCommandCollection(userContextMenus, userContextMenusCollection);
+      this.userContextMenus = commands.collection;
     }
     if (messageContextMenus) {
       this.directories.messageContextMenus = messageContextMenus;
-      const commands = this.loadCommandCollection(
-        messageContextMenus,
-        new Collection<string, MessageContextCommand>(),
-      );
-      this.messageContextMenus = commands;
+      const commands = this.loadCommandCollection(messageContextMenus, messageContextMenusCollection);
+      this.messageContextMenus = commands.collection;
     }
     if (componentCommands) {
       this.directories.componentCommands = componentCommands;
-      const commands = this.loadCommandCollection(
-        componentCommands,
-        new Collection<string, ComponentCommandBase>(),
-      );
-      this.componentCommands = commands;
+      const commands = this.loadCommandCollection(componentCommands, componentCommandsCollection);
+      this.componentCommands = commands.collection;
     }
     if (jobs) {
       this.directories.jobs = jobs;
-      const loadedJobs = this.resolveJobs(jobs, new Collection());
-      this.jobs = loadedJobs;
+      const loadedJobs = this.resolveJobs(jobs, jobsCollection);
+      this.jobs = loadedJobs.collection;
     }
+
+    return {
+      listenersCollection,
+      chatInputsCollection,
+      autoCompletesCollection,
+      userContextMenusCollection,
+      messageContextMenusCollection,
+      componentCommandsCollection,
+      jobsCollection,
+    };
+  };
+
+  initializeModule = (mod: Module): ModulePieces<Module> => {
+    const {
+      listeners,
+      chatInputs,
+      autoCompletes,
+      userContextMenus,
+      messageContextMenus,
+      componentCommands,
+      jobs,
+    } = mod.directories;
+
+    const added: ModulePieces<Module> = {
+      listeners: [],
+      chatInputs: [],
+      autoCompletes: [],
+      userContextMenus: [],
+      messageContextMenus: [],
+      componentCommands: [],
+      jobs: [],
+    };
+
+    if (listeners) {
+      this.directories.listeners = listeners;
+      const resolvedListeners = this.resolveListeners(listeners, this.listeners);
+      this.listeners = resolvedListeners.collection;
+      added.listeners.push(...resolvedListeners.added);
+    }
+    if (jobs) {
+      this.directories.jobs = jobs;
+      const loadedJobs = this.resolveJobs(jobs, this.jobs);
+      this.jobs = loadedJobs.collection;
+      added.jobs.push(...loadedJobs.added);
+    }
+    if (autoCompletes) {
+      this.directories.autoCompletes = autoCompletes;
+      const commands = this.resolveAutoCompletes(autoCompletes, this.autoComplete);
+      this.autoComplete = commands.collection;
+      added.autoCompletes.push(...commands.added);
+    }
+
+    if (chatInputs) {
+      this.directories.chatInputs = chatInputs;
+      const commands = this.loadCommandCollection(chatInputs, this.chatInput);
+      this.chatInput = commands.collection;
+      added.chatInputs.push(...commands.added as ChatInputCommand<Module>[]);
+      added.chatInputs.forEach((e) => {
+        const fromCollection = this.chatInput.get(e.data.name);
+        if (!fromCollection) return;
+        fromCollection.module = mod;
+      });
+    }
+
+    if (userContextMenus) {
+      this.directories.userContextMenus = userContextMenus;
+      const commands = this.loadCommandCollection(userContextMenus, this.userContextMenus);
+      this.userContextMenus = commands.collection;
+      added.userContextMenus.push(...commands.added as UserContextCommand<Module>[]);
+      added.userContextMenus.forEach((e) => {
+        const fromCollection = this.userContextMenus.get(e.data.name);
+        if (!fromCollection) return;
+        fromCollection.module = mod;
+      });
+    }
+
+    if (messageContextMenus) {
+      this.directories.messageContextMenus = messageContextMenus;
+      const commands = this.loadCommandCollection(messageContextMenus, this.messageContextMenus);
+      this.messageContextMenus = commands.collection;
+      added.messageContextMenus.push(...commands.added as MessageContextCommand<Module>[]);
+      added.messageContextMenus.forEach((e) => {
+        const fromCollection = this.messageContextMenus.get(e.data.name);
+        if (!fromCollection) return;
+        fromCollection.module = mod;
+      });
+    }
+    
+    if (componentCommands) {
+      this.directories.componentCommands = componentCommands;
+      const commands = this.loadCommandCollection(componentCommands, this.componentCommands);
+      this.componentCommands = commands.collection;
+      added.componentCommands.push(...commands.added as ComponentCommandBase<Module>[]);
+      added.componentCommands.forEach((e) => {
+        const fromCollection = this.componentCommands.get(e.data.name);
+        if (!fromCollection) return;
+        fromCollection.module = mod;
+      });
+    }
+
+    return added;
   };
 
   resolveAutoCompletes = (
     pathOrPaths: Directories,
     collection: Collection<string, AutoCompleteOption>,
   ) => {
+    const added = [];
     const resolvedDirs =
       typeof pathOrPaths === 'string' ? [pathOrPaths] : pathOrPaths;
     const allFiles = resolvedDirs.map((e) => FileUtils.getFiles(e)).flat();
@@ -515,19 +630,24 @@ export class CommandManager {
       if (isFromOfficialModule || handler?.default instanceof AutoCompleteOption) {
         handler.default.client = this.client;
         collection.set(handler.default.name, handler.default);
+        added.push(handler.default);
       } else {
         this.client.logger.debug(
           `Expected instanceof AutoCompleteOption to be exported, skipping: ${resolvedPath}`,
         );
       }
     }
-    return collection;
+    return {
+      collection,
+      added,
+    };
   };
 
   resolveJobs = (
     pathOrPaths: Directories,
     collection: Collection<string, Job>,
   ) => {
+    const added = [];
     const resolvedDirs =
       typeof pathOrPaths === 'string' ? [pathOrPaths] : pathOrPaths;
     const allFiles = resolvedDirs.map((e) => FileUtils.getFiles(e)).flat();
@@ -538,19 +658,24 @@ export class CommandManager {
       const isFromOfficialModule = officialModules.some((e) => filePath.includes(e));
       if (isFromOfficialModule || handler?.default instanceof Job) {
         collection.set(handler.default.id, handler.default);
+        added.push(handler.default);
       } else {
         this.client.logger.debug(
           `Expected instanceof Job to be exported, skipping: ${resolvedPath}`,
         );
       }
     }
-    return collection;
+    return {
+      collection,
+      added,
+    };
   };
 
   resolveListeners = (
     pathOrPaths: Directories,
     collection: Collection<string, ClientEventListener>,
   ) => {
+    const added = [];
     const resolvedDirs =
       typeof pathOrPaths === 'string' ? [pathOrPaths] : pathOrPaths;
     const allFiles = resolvedDirs.map((e) => FileUtils.getFiles(e)).flat();
@@ -562,6 +687,7 @@ export class CommandManager {
       if (isFromOfficialModule || listener?.default instanceof ClientEventListener) {
         listener.default.client = this.client;
         collection.set(listener.default.event, listener.default);
+        added.push(listener.default);
         listener.default.register(this.client);
       } else {
         this.client.logger.debug(
@@ -569,7 +695,10 @@ export class CommandManager {
         );
       }
     }
-    return collection;
+    return {
+      collection,
+      added,
+    };
   };
 
   fetchApplicationCommands = async (options: DeployCommandsOptions) => {
@@ -821,7 +950,7 @@ export class CommandManager {
           ...newCfg,
           aliases: [],
           aliasOf: command,
-        });
+        }) as CommandType;
         // Note: Without doing this, changing alias data
         // will overwrite initial/parent data as well
         const newData = Object.assign({ name: aliasStr }, command.data);

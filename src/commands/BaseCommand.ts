@@ -52,15 +52,15 @@ import {
 } from '..';
 
 export type CommandType =
-  | ComponentCommandBase
-  | ChatInputCommand
-  | UserContextCommand
-  | MessageContextCommand;
+  | ComponentCommandBase<Module | null>
+  | ChatInputCommand<Module | null>
+  | UserContextCommand<Module | null>
+  | MessageContextCommand<Module | null>;
 
 export type APICommandType =
-  | ChatInputCommand
-  | UserContextCommand
-  | MessageContextCommand;
+  | ChatInputCommand<Module | null>
+  | UserContextCommand<Module | null>
+  | MessageContextCommand<Module | null>;
 
 export const isCommand = (
   item: unknown,
@@ -231,9 +231,6 @@ export interface BaseCommandOptions<
   // | CreateMiddleware<CommandMiddlewareContext<I, Command>>
   middleware?: CommandMiddlewareOptions<I, CommandMiddlewareContext<I>>;
   // | CreateMiddleware<CommandMiddlewareContext<I, Command>>[];
-  // [DEV]
-  // Module should be required if FromModule is not null
-  module?: FromModule;
 }
 
 export interface ComponentCommandData {
@@ -248,7 +245,7 @@ export class BaseCommand<
   I extends BaseInteraction = BaseInteraction,
   FromModule extends Module | null = null
 > {
-  module: FromModule | null;
+  module: FromModule | null = null;
   client?: Client;
   collection?: Collection<string, CommandType>;
   manager?: CommandManager;
@@ -290,7 +287,6 @@ export class BaseCommand<
   ) {
     if (client) this.client = client;
     if (manager) this.manager = manager;
-    this.module = options.module ?? null;
     this.run = options.run;
 
     // Overwrite defaults

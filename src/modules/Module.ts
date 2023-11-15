@@ -2,7 +2,31 @@ import { readFile, mkdir } from 'fs/promises';
 import fse, { writeFile } from 'fs-extra';
 import {readFileSync} from 'fs';
 import { IntentsBitField, LocaleString } from 'discord.js';
-import { Client, CommandMiddleware, Directories, GlobalMiddleware, GlobalMiddlewareOptions } from '..';
+import {
+  AutoCompleteOption,
+  ChatInputCommand,
+  Client,
+  ClientEventListener,
+  CommandMiddleware,
+  ComponentCommandBase,
+  GlobalMiddleware,
+  GlobalMiddlewareOptions,
+  Job,
+  MessageContextCommand,
+  UserContextCommand,
+} from '..';
+
+export type ModulePieces<
+  FromModule extends Module
+> = {
+  jobs: Job[];
+  listeners: ClientEventListener[];
+  autoCompletes: AutoCompleteOption[];
+  chatInputs: ChatInputCommand<FromModule>[];
+  componentCommands: ComponentCommandBase<FromModule>[];
+  messageContextMenus: MessageContextCommand<FromModule>[];
+  userContextMenus: UserContextCommand<FromModule>[];
+}
 
 export type OfficialModule = '@rhidium/moderation' | '@rhidium/module-template' | '@rhidium/manage-modules';
 
@@ -52,6 +76,15 @@ export class Module {
   version: string;
   tag: string;
   directories: Required<Client['directories']>;
+  pieces: ModulePieces<Module> = {
+    autoCompletes: [],
+    chatInputs: [],
+    componentCommands: [],
+    jobs: [],
+    listeners: [],
+    messageContextMenus: [],
+    userContextMenus: [],
+  };
   sourceCode: SourceCodeDirectories;
   globalMiddleware: GlobalMiddleware;
   intents: IntentsBitField[] = [];
@@ -87,23 +120,14 @@ export class Module {
     this.intents = options.intents ?? [];
     this.extensions = options.extensions ?? {};
   }
+
   register(client: Client): void {
     client.logger.debug(`Registering module ${this.name}`);
     const {
-      directories,
       globalMiddleware,
       intents,
       extensions,
     } = this;
-    const { directories: {
-      autoCompletes,
-      chatInputs,
-      componentCommands,
-      jobs,
-      listeners,
-      messageContextMenus,
-      userContextMenus,
-    } } = client;
     const {
       postRunExecution,
       preRunChecks,
@@ -117,26 +141,7 @@ export class Module {
       client.I18N.addResourceBundle(locale, this.name, namespaces, true);
     });
 
-    const mergeDirectories = (dir: Directories | undefined, newDirs: Directories | undefined) => {
-      client.logger.debug(
-        `${this.tag} Merging directories ${dir?.length ?? 0} initial, adding ${newDirs?.length ?? 0}`
-      );
-      const resolved = dir ? typeof dir === 'string' ? [dir] : dir : [];
-      if (typeof newDirs === 'undefined') return resolved;
-      if (typeof newDirs === 'string') return [...resolved, newDirs];
-      client.logger.debug(`${this.tag} Merged directories, resulting in ${resolved.length + newDirs.length} total`);
-      return [...resolved, ...newDirs];
-    };
-
-    const newDirectories: Client['directories'] = {
-      autoCompletes: mergeDirectories(autoCompletes, directories.autoCompletes),
-      chatInputs: mergeDirectories(chatInputs, directories.chatInputs),
-      componentCommands: mergeDirectories(componentCommands, directories.componentCommands),
-      jobs: mergeDirectories(jobs, directories.jobs),
-      listeners: mergeDirectories(listeners, directories.listeners),
-      messageContextMenus: mergeDirectories(messageContextMenus, directories.messageContextMenus),
-      userContextMenus: mergeDirectories(userContextMenus, directories.userContextMenus),
-    };
+    this.pieces = client.commandManager.initializeModule(this);
 
     client.logger.debug(`${this.tag} Merging global middleware`);
     client.logger.debug(`${this.tag} Post Run Execution: ${globalMiddleware.postRunExecution.length}`);
@@ -153,7 +158,6 @@ export class Module {
       runExecutionReturnValues: [...runExecutionReturnValues, ...globalMiddleware.runExecutionReturnValues],
     });
 
-    client.directories = newDirectories;
     client.globalMiddleware = newMiddleware;
     client.options.intents = new IntentsBitField().add(
       ...client.options.intents,
