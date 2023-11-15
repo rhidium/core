@@ -45,22 +45,21 @@ import {
   CommandCooldownType,
   DiscordLogger,
   IRequiredResources,
-  Module,
   RequiredResources,
   throttleFromCache,
   throttleTTLCache,
 } from '..';
 
 export type CommandType =
-  | ComponentCommandBase<Module | null>
-  | ChatInputCommand<Module | null>
-  | UserContextCommand<Module | null>
-  | MessageContextCommand<Module | null>;
+  | ComponentCommandBase
+  | ChatInputCommand
+  | UserContextCommand
+  | MessageContextCommand;
 
 export type APICommandType =
-  | ChatInputCommand<Module | null>
-  | UserContextCommand<Module | null>
-  | MessageContextCommand<Module | null>;
+  | ChatInputCommand
+  | UserContextCommand
+  | MessageContextCommand;
 
 export const isCommand = (
   item: unknown,
@@ -85,22 +84,18 @@ export const isDataBasedCommand = (item: unknown): item is APICommandType =>
 export const DEFAULT_SOURCE_FILE_STRING = 'uninitialized/ghost command';
 
 export type RunFunction<
-  FromModule extends Module | null = null,
   I extends BaseInteraction = BaseInteraction,
 > = (
   /** The client that received this interaction */
   client: Client<true>,
   /** The interaction that triggered this command#run */
   interaction: I,
-  /** The module that this command was loaded from */
-  module: FromModule,
 ) => Promise<unknown> | unknown;
 
 /**
  * Represents a client command configuration object
  */
 export interface BaseCommandOptions<
-  FromModule extends Module | null = null,
   I extends BaseInteraction = BaseInteraction,
 > {
   /**
@@ -190,7 +185,7 @@ export interface BaseCommandOptions<
    * @param client The client instance
    * @param interaction The interaction that triggered this command
    */
-  run: RunFunction<FromModule, I>;
+  run: RunFunction<I>;
   /**
    * Middleware for this command
    *
@@ -243,9 +238,7 @@ export interface ComponentCommandData {
  * */
 export class BaseCommand<
   I extends BaseInteraction = BaseInteraction,
-  FromModule extends Module | null = null
 > {
-  module: FromModule | null = null;
   client?: Client;
   collection?: Collection<string, CommandType>;
   manager?: CommandManager;
@@ -260,7 +253,7 @@ export class BaseCommand<
   guildOnly = true;
   isEphemeral = false;
   deferReply = false;
-  run: RunFunction<FromModule, I>;
+  run: RunFunction<I>;
   data: ComponentCommandData = { name: '' };
   middleware: CommandMiddleware<I, CommandMiddlewareContext<I>>;
   sourceHash = DEFAULT_SOURCE_FILE_STRING;
@@ -281,7 +274,7 @@ export class BaseCommand<
   aliasOf: CommandType | null = null;
 
   constructor(
-    options: BaseCommandOptions<FromModule, I>,
+    options: BaseCommandOptions<I>,
     client?: Client,
     manager?: CommandManager,
   ) {
@@ -846,10 +839,9 @@ export class BaseCommand<
     )) return false;
 
     // Run/execute the command
-    const originModule = client.modules.find((e) => e.name === this.module?.name) ?? null;
     const tryRunResult = await DiscordLogger.tryWithErrorLogging(
       client,
-      () => this.run.call(this, client, interaction, originModule as FromModule),
+      () => this.run.call(this, client, interaction),
       'An error occurred while running a command',
     );
 

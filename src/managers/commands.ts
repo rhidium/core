@@ -25,6 +25,7 @@ import {
   ComponentCommandBase,
   MessageContextCommand,
   UserContextCommand,
+  isCommand,
 } from '../commands';
 import {
   CommandCooldownType,
@@ -45,7 +46,6 @@ import { EmbedConstants, UnitConstants } from '../constants';
 import { ClientEventListener } from '.';
 import { stripIndents } from 'common-tags';
 import { Job } from '../jobs';
-import { Module, ModulePieces } from '..';
 
 export type ExcludedCommandNames =
   'components' | 'options' | 'types' | 'helpers' | 'controllers' | 'services' | 'transformers' | 'enums'
@@ -88,18 +88,6 @@ export interface CommandManagerCommandsOptions {
   jobs?: Directories;
 }
 
-export type PiecesCollections<
-  FromModule extends Module | null = null
-> = {
-  listenersCollection: Collection<string, ClientEventListener>;
-  autoCompletesCollection: Collection<string, AutoCompleteOption>;
-  jobsCollection: Collection<string, Job>;
-  chatInputsCollection: Collection<string, ChatInputCommand<FromModule>>;
-  userContextMenusCollection: Collection<string, UserContextCommand<FromModule>>;
-  messageContextMenusCollection: Collection<string, MessageContextCommand<FromModule>>;
-  componentCommandsCollection: Collection<string, ComponentCommandBase<FromModule>>;
-};
-
 export interface CommandManagerOptions {
   client: Client;
 }
@@ -107,10 +95,10 @@ export interface CommandManagerOptions {
 export class CommandManager {
   readonly client: Client;
   listeners = new Collection<string, ClientEventListener>();
-  chatInput = new Collection<string, ChatInputCommand<Module | null>>();
-  userContextMenus = new Collection<string, UserContextCommand<Module | null>>();
-  messageContextMenus = new Collection<string, MessageContextCommand<Module | null>>();
-  componentCommands = new Collection<string, ComponentCommandBase<Module | null>>();
+  chatInput = new Collection<string, ChatInputCommand>();
+  userContextMenus = new Collection<string, UserContextCommand>();
+  messageContextMenus = new Collection<string, MessageContextCommand>();
+  componentCommands = new Collection<string, ComponentCommandBase>();
   autoComplete = new Collection<string, AutoCompleteOption>();
   jobs = new Collection<string, Job>();
   get commandSize() {
@@ -357,10 +345,13 @@ export class CommandManager {
         if (typeof cmd === 'object' && cmd !== null && 'default' in cmd)
           cmd = cmd.default;
 
-        // Note: We have a static structure.
-        // Random files shouldn't be exported as commands/components
-        // we need this as cast to allow local development of modules (npm link)
-        // Without it, what's the use of an ecosystem if developing modules is garbage
+        if (!isCommand(cmd)) {
+          this.client.logger.debug(
+            `Skipping non-command: ${FileUtils.getProjectRelativePath(cmdPath)}`,
+          );
+          continue;
+        }
+
         commands.set(cmdPath, cmd as T);
       }
     }
@@ -467,10 +458,10 @@ export class CommandManager {
     const jobsCollection = new Collection<string, Job>();
     const listenersCollection = new Collection<string, ClientEventListener>();
     const autoCompletesCollection = new Collection<string, AutoCompleteOption>();
-    const chatInputsCollection = new Collection<string, ChatInputCommand<Module | null>>();
-    const userContextMenusCollection = new Collection<string, UserContextCommand<Module | null>>();
-    const messageContextMenusCollection = new Collection<string, MessageContextCommand<Module | null>>();
-    const componentCommandsCollection = new Collection<string, ComponentCommandBase<Module | null>>();
+    const chatInputsCollection = new Collection<string, ChatInputCommand>();
+    const userContextMenusCollection = new Collection<string, UserContextCommand>();
+    const messageContextMenusCollection = new Collection<string, MessageContextCommand>();
+    const componentCommandsCollection = new Collection<string, ComponentCommandBase>();
 
     if (listeners) {
       this.directories.listeners = listeners;
@@ -518,98 +509,6 @@ export class CommandManager {
       jobsCollection,
     };
   };
-
-  initializeModule = (mod: Module): ModulePieces<Module> => {
-    const {
-      listeners,
-      chatInputs,
-      autoCompletes,
-      userContextMenus,
-      messageContextMenus,
-      componentCommands,
-      jobs,
-    } = mod.directories;
-
-    const added: ModulePieces<Module> = {
-      listeners: [],
-      chatInputs: [],
-      autoCompletes: [],
-      userContextMenus: [],
-      messageContextMenus: [],
-      componentCommands: [],
-      jobs: [],
-    };
-
-    if (listeners) {
-      this.directories.listeners = listeners;
-      const resolvedListeners = this.resolveListeners(listeners, this.listeners);
-      this.listeners = resolvedListeners.collection;
-      added.listeners.push(...resolvedListeners.added);
-    }
-    if (jobs) {
-      this.directories.jobs = jobs;
-      const loadedJobs = this.resolveJobs(jobs, this.jobs);
-      this.jobs = loadedJobs.collection;
-      added.jobs.push(...loadedJobs.added);
-    }
-    if (autoCompletes) {
-      this.directories.autoCompletes = autoCompletes;
-      const commands = this.resolveAutoCompletes(autoCompletes, this.autoComplete);
-      this.autoComplete = commands.collection;
-      added.autoCompletes.push(...commands.added);
-    }
-
-    if (chatInputs) {
-      this.directories.chatInputs = chatInputs;
-      const commands = this.loadCommandCollection(chatInputs, this.chatInput);
-      this.chatInput = commands.collection;
-      added.chatInputs.push(...commands.added as ChatInputCommand<Module>[]);
-      added.chatInputs.forEach((e) => {
-        const fromCollection = this.chatInput.get(e.data.name);
-        if (!fromCollection) return;
-        fromCollection.module = mod;
-      });
-    }
-
-    if (userContextMenus) {
-      this.directories.userContextMenus = userContextMenus;
-      const commands = this.loadCommandCollection(userContextMenus, this.userContextMenus);
-      this.userContextMenus = commands.collection;
-      added.userContextMenus.push(...commands.added as UserContextCommand<Module>[]);
-      added.userContextMenus.forEach((e) => {
-        const fromCollection = this.userContextMenus.get(e.data.name);
-        if (!fromCollection) return;
-        fromCollection.module = mod;
-      });
-    }
-
-    if (messageContextMenus) {
-      this.directories.messageContextMenus = messageContextMenus;
-      const commands = this.loadCommandCollection(messageContextMenus, this.messageContextMenus);
-      this.messageContextMenus = commands.collection;
-      added.messageContextMenus.push(...commands.added as MessageContextCommand<Module>[]);
-      added.messageContextMenus.forEach((e) => {
-        const fromCollection = this.messageContextMenus.get(e.data.name);
-        if (!fromCollection) return;
-        fromCollection.module = mod;
-      });
-    }
-    
-    if (componentCommands) {
-      this.directories.componentCommands = componentCommands;
-      const commands = this.loadCommandCollection(componentCommands, this.componentCommands);
-      this.componentCommands = commands.collection;
-      added.componentCommands.push(...commands.added as ComponentCommandBase<Module>[]);
-      added.componentCommands.forEach((e) => {
-        const fromCollection = this.componentCommands.get(e.data.name);
-        if (!fromCollection) return;
-        fromCollection.module = mod;
-      });
-    }
-
-    return added;
-  };
-
   resolveAutoCompletes = (
     pathOrPaths: Directories,
     collection: Collection<string, AutoCompleteOption>,

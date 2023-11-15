@@ -8,6 +8,5 @@ export * from './jobs';
 export * from './logger';
 export * from './managers';
 export * from './middleware';
-export * from './modules';
 export * from './permissions';
 export * from './utils';

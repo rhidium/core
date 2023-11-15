@@ -40,11 +40,8 @@ import {
   CommandMiddlewareOptions,
   Directories,
   InteractionUtils,
-  Module,
-  officialModules,
 } from '..';
 import Lang from '../i18n/i18n';
-import { existsSync } from 'fs-extra';
 
 export type ClientWithCluster<Ready extends boolean = boolean> = Client<Ready> & {
   cluster: ClusterClient<Client>
@@ -101,7 +98,6 @@ export interface ClientOptions {
   pkg?: Record<string, unknown>;
   extensions?: Record<string, unknown>;
   globalMiddleware?: GlobalMiddlewareOptions;
-  modules?: Module[];
 }
 
 export interface RequiredClientOptions<Ready extends boolean = boolean> {
@@ -140,7 +136,6 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
   pkg: Record<string, unknown> = pkg;
   extensions: Record<string, unknown> = {};
   globalMiddleware: GlobalMiddleware;
-  modules: Module[];
 
   constructor(
     /** Your discord.js client - doesn't have to be logged in or initialized */
@@ -157,8 +152,6 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       commandData: debug?.commandData ?? false,
     };
     this.token = options.token;
-    this.modules = options.modules ?? [];
-    this.modules = this.modules.filter((e) => e.disabled === false);
     this.applicationId = options.applicationId;
     this.defaultCommandThrottling = new CommandThrottle(
       options.defaultCommandThrottling ?? {},
@@ -230,88 +223,12 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
     ].join('\n'));
   };
 
-  get moduleDirectories () {
-    return this.modules.map((module) => module.directories);
-  }
-
-  /**
-   * All directories, with modules merged
-   */
-  get mergedDirectories () {
-    const moduleDirectories = this.moduleDirectories;
-    return {
-      chatInputs: moduleDirectories.map((dir) => dir.chatInputs)
-        .flat().concat(...(this.directories.chatInputs ?? [])),
-      autoCompletes: moduleDirectories.map((dir) => dir.autoCompletes)
-        .flat().concat(...(this.directories.autoCompletes ?? [])),
-      componentCommands: moduleDirectories.map((dir) => dir.componentCommands)
-        .flat().concat(...(this.directories.componentCommands ?? [])),
-      jobs: moduleDirectories.map((dir) => dir.jobs)
-        .flat().concat(...(this.directories.jobs ?? [])),
-      listeners: moduleDirectories.map((dir) => dir.listeners)
-        .flat().concat(...(this.directories.listeners ?? [])),
-      messageContextMenus: moduleDirectories.map((dir) => dir.messageContextMenus)
-        .flat().concat(...(this.directories.messageContextMenus ?? [])),
-      userContextMenus: moduleDirectories.map((dir) => dir.userContextMenus)
-        .flat().concat(...(this.directories.userContextMenus ?? [])),
-    };
-  }
-
   initialize(): this {
     this.printVanity();
     this.registerEssentialListeners();
     this.commandManager.initialize(this.directories);
-    this.loadModules();
     return this;
   }
-
-  loadModules = () => {
-    this.logger.debug('Loading modules');
-    this.loadNPMModules();
-    this.modules.forEach((mod) => mod.register(this));
-  };
-
-  loadNPMModules = () => {
-    this.logger.debug('[NPM Module] Resolving end-user modules from NPM registry');
-    for (const moduleName of officialModules) {
-      let npmModule;
-      if (this.modules.find((e) => e.name === moduleName)) continue;
-      try {
-        npmModule = require(moduleName); // [DEV] Should be ran from the project root
-      }
-      catch {
-        if (process.env.TS_NODE_DEV !== 'true') {
-          this.logger.debug(`[NPM Module] Official Module "${moduleName}" not installed`);
-          continue;
-        }
-        if (existsSync(`./node_modules/${moduleName}`)) {
-          npmModule = require(`${process.cwd()}/node_modules/${moduleName}`);
-        }
-        if (!npmModule) continue;
-        npmModule.default &&= npmModule.default as Module;
-      }
-
-      // Note: instanceof checking is too limiting for development,
-      // there's no use in creating a module ecosystem if developing
-      // the modules is a pain. These are official modules, so we
-      // can trust them to be valid - as we only load these from a predefined
-      // array of allowed module names
-
-      // Actually, we might just get this to work if we get our versioning right
-      // if (!(npmModule instanceof Module) && !(npmModule.default instanceof Module)) {
-      //   throw new Error([
-      //     `Official Module "${moduleName}" is not an instance of Module,`,
-      //     'this should never happen and was implemented as a fail-safe,',
-      //     'please create a GitHub issue with details.',
-      //   ].join(' '));
-      // }
-
-      npmModule = npmModule.default ?? npmModule;
-      npmModule = new npmModule();
-      this.logger.debug(`[NPM Module] Loaded Official Module "${moduleName}"`);
-      this.modules.push(npmModule);
-    }
-  };
 
   registerEssentialListeners = () => {
     this.once(Events.ClientReady, (c) => {
@@ -416,8 +333,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       }
 
       const sharedErrorLines = [
-        'this should never happen and is very likely a bug in your code',
-        'or a version mis-match in the module this component originated from -',
+        'this should never happen and is very likely a bug in your code -',
         'please investigate and create a GitHub issue if you believe this is a bug.',
       ];
 

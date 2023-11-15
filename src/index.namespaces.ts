@@ -15,6 +15,5 @@ export * as Jobs from './jobs';
 export * as Logger from './logger';
 export * as Managers from './managers';
 export * as Middleware from './middleware';
-export * as Modules from './modules';
 export * as Permissions from './permissions';
 export * as Utils from './utils';
