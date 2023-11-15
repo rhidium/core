@@ -129,7 +129,8 @@ export class Middleware<Context extends MiddlewareContext> {
       result = await this.execute(context);
     } catch (err) {
       if (this.hooks.onError) {
-        await this.hooks.onError(err as Error, hookContext);
+        const error = err instanceof Error ? err : new Error(`${err}`);
+        await this.hooks.onError(error, hookContext);
       } else throw err;
     }
     const end = Date.now();

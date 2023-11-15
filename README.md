@@ -26,9 +26,7 @@ Rhidium is built out of love for Discord bot development, and has 1 primary goal
 
 ## About
 
-The Rhidium framework is designed for creating Discord bots with ease. It is **not** a lightweight framework, and aims to provide most of the core functionality required to bootstrap a powerful, modern Discord bot.
-
-It is built on top of the [discord.js](https://discord.js.org/#/) library, aiming to be user-friendly while providing all the necessary building blocks for advanced bot development. Written in TypeScript, it provides the benefits of static type-checking and code completion in modern editors.
+Rhidium is **not** a lightweight framework. It is built on top of the [discord.js](https://discord.js.org/#/) library, and aims to provide most of the core functionality required to bootstrap a powerful, modern Discord bot. Written in TypeScript, it provides the benefits of static type-checking and code completion in modern editors.
 
 ## Documentation
 
