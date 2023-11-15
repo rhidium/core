@@ -414,6 +414,12 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         return;
       }
 
+      const sharedErrorLines = [
+        'this should never happen and is very likely a bug in your code',
+        'or a version mis-match in the module this component originated from -',
+        'please investigate and create a GitHub issue if you believe this is a bug.',
+      ];
+
       // [DEV] - How do we cast Interaction<CacheType> from listener
       // to I extends BaseInteraction - we can't use generics because
       // we don't know the type of the interaction at compile time
@@ -423,8 +429,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         if (!interaction.isChatInputCommand()) {
           throw new Error([
             `Interaction for ChatInputCommand "${commandId}" is not a ChatInputCommand interaction,`,
-            'this should never happen and is very likely a bug in your code - please investigate',
-            'and create a GitHub issue if you believe this is a bug.',
+            ...sharedErrorLines,
           ].join(' '));
         }
         await command.handleInteraction(interaction, readyClient, middlewareContext);
@@ -434,8 +439,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         if (!interaction.isUserContextMenuCommand()) {
           throw new Error([
             `Interaction for UserContextCommand "${commandId}" is not a UserContextCommand interaction,`,
-            'this should never happen and is very likely a bug in your code - please investigate',
-            'and create a GitHub issue if you believe this is a bug.',
+            ...sharedErrorLines,
           ].join(' '));
         }
         await command.handleInteraction(interaction, readyClient, middlewareContext);
@@ -445,8 +449,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         if (!interaction.isMessageContextMenuCommand()) {
           throw new Error([
             `Interaction for MessageContextCommand "${commandId}" is not a MessageContextCommand interaction,`,
-            'this should never happen and is very likely a bug in your code - please investigate',
-            'and create a GitHub issue if you believe this is a bug.',
+            ...sharedErrorLines,
           ].join(' '));
         }
         await command.handleInteraction(interaction, readyClient, middlewareContext);
@@ -460,8 +463,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         if (!(command instanceof ModalCommand)) {
           throw new Error([
             `Interaction for ModalCommand "${commandId}" is not a ModalCommand interaction,`,
-            'this should never happen and is very likely a bug in your code - please investigate',
-            'and create a GitHub issue if you believe this is a bug.',
+            ...sharedErrorLines,
           ].join(' '));
         }
         await command.handleInteraction(interaction, readyClient, middlewareContext);
