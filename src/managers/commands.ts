@@ -122,7 +122,8 @@ export class CommandManager {
 
   // Construct and prepare an instance of the REST module
   private get rest() {
-    return new REST({ version: '10' }).setToken(this.client.token as string);
+    if (!this.client.token) throw new Error('No token set for client');
+    return new REST({ version: '10' }).setToken(this.client.token);
   }
 
   globalCommandFilter = (command: APICommandType) =>
