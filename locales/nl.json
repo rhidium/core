@@ -30,7 +30,7 @@
     "missingInitialReply": "Kan de initiële reply niet vinden.",
     "isNotUserPaginator": "Deze paginator kan alleen door de gebruiker die het heeft geïnitieerd worden gebruikt.",
     "errorWhileReplyingToInteraction": "Error bij het reageren op de interactie. De developers zijn op de hoogte gebracht. Probeer het later opnieuw.",
-    "confirmationRequired": "Weet je zeker dat je dit commando wilt uitvoeren?",
+    "confirmationRequired": "Bevestiging vereist, je hebt deze active niet bevestigd in de commando opties.",
     "promptConfirmation": "Bevestig de actie door op de knop te klikken.",
     "confirmationCancelled": "Bevestiging geannuleerd, actie niet uitgevoerd",
     "confirmationAccepted": "Bevestiging geaccepteerd, actie uitgevoerd",

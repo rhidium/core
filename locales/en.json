@@ -30,7 +30,7 @@
     "missingInitialReply": "Failed to send initial reply, please try again later",
     "isNotUserPaginator": "You cannot interact with this paginator, it was not invoked/initiated by you",
     "errorWhileReplyingToInteraction": "An error occurred while attempting to reply to your interaction, the developers have been notified of this issue - please try again later",
-    "confirmationRequired": "Are you sure you want to perform this action?",
+    "confirmationRequired": "Confirmation required, you didn't confirm this option in the command options",
     "promptConfirmation": "Please confirm you want to perform this action",
     "confirmationCancelled": "This action has been cancelled",
     "confirmationAccepted": "Confirmed, performing action",
