@@ -382,8 +382,9 @@ const disableComponents = (
   return component;
 });
 
-const slashConfirmationOption = new SlashCommandBooleanOption()
-  .setName('confirmation')
+const slashConfirmationOptionName = 'confirmation';
+const addSlashConfirmationOption = (i: SlashCommandBooleanOption) => i
+  .setName(slashConfirmationOptionName)
   .setDescription('Are you sure you want to perform this action?')
   .setRequired(false);
 
@@ -391,7 +392,7 @@ const slashConfirmationOptionHandler = (
   client: Client,
   interaction: ChatInputCommandInteraction,
 ): boolean => {
-  const value = interaction.options.getBoolean(slashConfirmationOption.name);
+  const value = interaction.options.getBoolean(slashConfirmationOptionName);
   if (!value) {
     InteractionUtils.replyDynamic(client, interaction, {
       content: Lang.t('commands.confirmationRequired'),
@@ -522,7 +523,7 @@ export class InteractionUtils {
   static readonly requireAvailableGuild = requireAvailableGuild;
   static readonly paginator = paginator;
   static readonly disableComponents = disableComponents;
-  static readonly slashConfirmationOption = slashConfirmationOption;
+  static readonly addSlashConfirmationOption = addSlashConfirmationOption;
   static readonly slashConfirmationOptionHandler = slashConfirmationOptionHandler;
   static readonly confirmationButtonRow = confirmationButtonRow;
   static readonly promptConfirmation = promptConfirmation;
