@@ -11,10 +11,7 @@ export const dutchLibrary = nlLib;
 
 export const defaultNS = 'lib';
 
-export const localizationIsInitialized = () => Lang.isInitialized;
-
 export const initializeLocalization = (debugEnabled = false) => {
-  if (localizationIsInitialized()) return;
   Lang.init({
     // We don't specify lng, as language is determined
     // on Discord\'s side by the user\'s locale.
