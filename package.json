@@ -1,6 +1,6 @@
 {
   "name": "@rhidium/core",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Quickly and easily create powerful Discord bots using a powerful all-in-one framework.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -53,7 +53,7 @@
     "eslint": "^8.53.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.0.2",
-    "semantic-release": "^22.0.7",
+    "semantic-release": "^22.0.8",
     "ts-node-dev": "^2.0.0",
     "tsup": "^7.2.0",
     "typedoc": "^0.25.3",

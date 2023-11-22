@@ -1,3 +1,17 @@
+# [1.1.0](https://github.com/rhidium/core/compare/v1.0.0...v1.1.0) (2023-11-22)
+
+
+### Bug Fixes
+
+* avoid double unix timestamp conversion ([59f36ed](https://github.com/rhidium/core/commit/59f36edf727c908816da5ef3e6dca96899c1c779))
+* remove check Lang is initialized ([dd893df](https://github.com/rhidium/core/commit/dd893dfd658419625bde1ae53b1572cdb7811721))
+* wrong localization value ([774a327](https://github.com/rhidium/core/commit/774a32757e2b1c6c8b1c547d44362d222a2c1448))
+
+
+### Features
+
+* use add option handler for slash confirm option ([60aa97b](https://github.com/rhidium/core/commit/60aa97bd6c7259f1af7c4da848864e200152c2e6))
+
 # 1.0.0 (2023-11-15)
 
 
