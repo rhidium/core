@@ -900,8 +900,8 @@ export class BaseCommand<
       .filter((e) => e.valueOf() + durationInMS > now);
     const activeUsages = nonExpiredUsages.length;
   
-    if (nonExpiredUsages.length >= 1 && activeUsages >= cooldown.usages) {
-      const firstNonExpired = nonExpiredUsages[0] as Date;
+    const firstNonExpired = nonExpiredUsages[0];
+    if (firstNonExpired && activeUsages >= cooldown.usages) {
       const firstUsageExpires = new Date(
         firstNonExpired.valueOf() + durationInMS,
       );

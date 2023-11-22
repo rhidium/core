@@ -20,7 +20,7 @@ const discordTimestamp = (
 ): string => time(unixTs(timestamp), style);
 
 const discordTimestampNow = (style: TimestampStylesString): string =>
-  discordTimestamp(unixNow(), style);
+  discordTimestamp(Date.now(), style);
 
 const discordInfoTimestamp = (
   timestamp: number = Date.now(),
