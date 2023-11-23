@@ -609,7 +609,7 @@ export class BaseCommand<
   matchPermLevelConstraints = async (
     client: Client<true>,
     interaction: I,
-  ): Promise<boolean> => {
+  ): Promise<false | PermLevel> => {
     const permLevel = await PermissionUtils.resolveMemberPermLevel(
       client,
       interaction.member,
@@ -622,7 +622,7 @@ export class BaseCommand<
       });
       return false;
     }
-    return true;
+    return permLevel;
   };
 
   matchNSFWConstraints = (interaction: I, client: Client): boolean => {
@@ -741,11 +741,11 @@ export class BaseCommand<
     // First check is internal permission level -
     // they don't have to know anything about the
     // command if they don't have permission
-    const permLevelMatches = await this.matchPermLevelConstraints(
+    const permLevel = await this.matchPermLevelConstraints(
       client,
       interaction,
     );
-    if (!permLevelMatches) return false;
+    if (permLevel === false) return false;
 
     if (!this.matchComponentOriginConstraints(interaction, client)) return false;
 
@@ -787,8 +787,10 @@ export class BaseCommand<
       // Should only apply to "successful" commands -
       // otherwise failed-constraints commands will
       // consume throttle points
-      const isOnCooldown = this.throttleUsage(interaction, client);
-      if (isOnCooldown) return false;
+      if (permLevel > PermLevel['Server Owner']) {
+        const isOnCooldown = this.throttleUsage(interaction, client);
+        if (isOnCooldown) return false;
+      }
     }
 
     return true;
