@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/rhidium/core/compare/v1.1.3...v1.1.4) (2023-11-24)
+
+
+### Bug Fixes
+
+* **Localizations:** explicit lib namespace for client#I18N ([a75a888](https://github.com/rhidium/core/commit/a75a88852d902204d8e0549d348e587edca4558f)), closes [client#I18](https://github.com/client/issues/I18)
+
 ## [1.1.3](https://github.com/rhidium/core/compare/v1.1.2...v1.1.3) (2023-11-24)
 
 
