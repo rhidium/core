@@ -1,3 +1,12 @@
+## [1.1.1](https://github.com/rhidium/core/compare/v1.1.0...v1.1.1) (2023-11-24)
+
+
+### Bug Fixes
+
+* **AutoComplete:** allow to be used in AutoComplete interactions ([dadf2ea](https://github.com/rhidium/core/commit/dadf2ea2fdcefd38fc2478454a668e6104853aeb))
+* only throttle command usage for low-perm level users ([966fa96](https://github.com/rhidium/core/commit/966fa964b4e5146ac7900101bb042aae6227ad11))
+* **TimeUtils:** msToHumanReadable, fix wrong arr operation ([6724a32](https://github.com/rhidium/core/commit/6724a3292dca4682e8a1f86bd82c043a3810de98))
+
 # [1.1.0](https://github.com/rhidium/core/compare/v1.0.0...v1.1.0) (2023-11-22)
 
 
