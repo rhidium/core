@@ -40,7 +40,6 @@ import {
   CommandThrottleOptions,
   cooldownResourceId,
 } from './Cooldown';
-import Lang from '../i18n/i18n';
 import {
   CommandCooldownType,
   DiscordLogger,
@@ -490,7 +489,7 @@ export class BaseCommand<
   matchEnabledConstraints = (interaction: I, client: Client): boolean => {
     if (this.disabled) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.commandDisabledTitle'),
+        content: client.I18N.t('commands.commandDisabledTitle'),
         ephemeral: true,
       });
       return false;
@@ -524,7 +523,7 @@ export class BaseCommand<
     // Restrict DM usage if applicable
     if (!interaction.inGuild() && this.guildOnly) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.notAvailableInDMs'),
+        content: client.I18N.t('commands.notAvailableInDMs'),
         ephemeral: true,
       });
       return false;
@@ -546,7 +545,7 @@ export class BaseCommand<
     // so we shouldn't allow it
     if (!channel) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.noChannelForPermissionCheck'),
+        content: client.I18N.t('commands.noChannelForPermissionCheck'),
       });
       return false;
     }
@@ -562,8 +561,8 @@ export class BaseCommand<
     if (!hasChannelPerms) {
       const isClient = targetMember.user.id === interaction.client.user.id;
       const msg = isClient
-        ? Lang.t('commands.clientMissingPermissions')
-        : Lang.t('commands.userMissingPermissions');
+        ? client.I18N.t('commands.clientMissingPermissions')
+        : client.I18N.t('commands.userMissingPermissions');
       InteractionUtils.replyDynamic(client, interaction, {
         content: msg,
         ephemeral: true,
@@ -573,7 +572,7 @@ export class BaseCommand<
             // instead of the default or user config color
             .setColor(Colors.Red)
             .setDescription(
-              `${Lang.t('commands.missingPermissions')}: \`${channel
+              `${client.I18N.t('commands.missingPermissions')}: \`${channel
                 .permissionsFor(targetMember.user.id)
                 ?.missing(perms)
                 .join(', ')}\``,
@@ -595,8 +594,8 @@ export class BaseCommand<
       InteractionUtils.replyDynamic(client, interaction, {
         embeds: [
           client.embeds.error({
-            title: Lang.t('lib:invalidUser'),
-            description: Lang.t('commands.isNotComponentUser'),
+            title: client.I18N.t('lib:invalidUser'),
+            description: client.I18N.t('commands.isNotComponentUser'),
           }),
         ],
         ephemeral: true,
@@ -617,7 +616,7 @@ export class BaseCommand<
     );
     if (permLevel < this.permLevel) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.permLevelTooLow'),
+        content: client.I18N.t('commands.permLevelTooLow'),
         ephemeral: true,
       });
       return false;
@@ -635,7 +634,7 @@ export class BaseCommand<
     // we shouldn't allow it
     if (!channel) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.noChannelForNSFWCheck'),
+        content: client.I18N.t('commands.noChannelForNSFWCheck'),
         ephemeral: true,
       });
       return false;
@@ -645,7 +644,7 @@ export class BaseCommand<
     // They'll always open without warning, so deny
     if (channel.isDMBased()) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.noNSFWInDM'),
+        content: client.I18N.t('commands.noNSFWInDM'),
         ephemeral: true,
       });
       return false;
@@ -654,7 +653,7 @@ export class BaseCommand<
     // Threads can NOT be marked as NSFW
     if (channel.isThread()) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.noNSFWInThread'),
+        content: client.I18N.t('commands.noNSFWInThread'),
         ephemeral: true,
       });
       return false;
@@ -663,7 +662,7 @@ export class BaseCommand<
     // If the channel is not NSFW, deny execution
     if (!channel.nsfw) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.noNSFWInSFWChannel'),
+        content: client.I18N.t('commands.noNSFWInSFWChannel'),
         ephemeral: true,
       });
       return false;
@@ -705,7 +704,7 @@ export class BaseCommand<
       const me = interaction.guild.members.me;
       if (!me) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: `${Lang.t('commands.clientMissingPermissions')}\n\n${this.clientPerms
+          content: `${client.I18N.t('commands.clientMissingPermissions')}\n\n${this.clientPerms
             .map((e) => `${this.client?.clientEmojis.error ?? defaultEmojis.error} \`${e}\``)
             .join(', ')}`,
           ephemeral: true,

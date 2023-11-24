@@ -2,7 +2,6 @@ import { IEmojis, type UserColors } from './config';
 import { EmbedConstants } from '../constants';
 import { StringUtils, TimeUtils } from '../utils';
 import { EmbedBuilder, type EmbedData } from 'discord.js';
-import Lang from '../i18n/i18n';
 
 export type EmbedStatus =
   | 'success'
@@ -79,7 +78,7 @@ export class Embeds implements EmbedsOptions {
     this.timestampSmall
       ? embed.setTimestamp()
       : embed.addFields({
-        name: Lang.t('timestampName'),
+        name: 'Timestamp',
         value: TimeUtils.discordInfoTimestamp(),
         inline: this.timestampInline,
       });
