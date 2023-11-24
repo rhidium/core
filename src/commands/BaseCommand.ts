@@ -402,6 +402,7 @@ export class BaseCommand<
       const commandLocales = locales
         .map((locale) => [
           locale,
+          // Note: client NS
           I18N.t(`commands:${cmdName}.${cmdLocalizationKey}`, {
             lng: locale,
             defaultValue: enName,

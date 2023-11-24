@@ -305,8 +305,8 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
           InteractionUtils.replyDynamic(readyClient, interaction, {
             embeds: [
               this.embeds.error({
-                title: this.I18N.t('commands.unknownCommandTitle'),
-                description: this.I18N.t('commands.unknownCommandDescription', { commandId }),
+                title: this.I18N.t('lib:commands.unknownCommandTitle'),
+                description: this.I18N.t('lib:commands.unknownCommandDescription', { commandId }),
               }),
             ],
           });
@@ -325,8 +325,8 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         InteractionUtils.replyDynamic(readyClient, interaction, {
           embeds: [
             this.embeds.error({
-              title: this.I18N.t('commands.commandDisabledTitle'),
-              description: this.I18N.t('commands.commandDisabledDescription'),
+              title: this.I18N.t('lib:commands.commandDisabledTitle'),
+              description: this.I18N.t('lib:commands.commandDisabledDescription'),
             }),
           ],
           ephemeral: true,
