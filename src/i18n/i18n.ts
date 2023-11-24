@@ -1,4 +1,4 @@
-import Lang from 'i18next';
+import Lang, { i18n } from 'i18next';
 import { LocaleString } from 'discord.js';
 
 import enLib from '../../locales/en.json';
@@ -11,22 +11,9 @@ export const dutchLibrary = nlLib;
 
 export const defaultNS = 'lib';
 
-export const initializeLocalization = (debugEnabled = false) => {
-  Lang.init({
-    // We don't specify lng, as language is determined
-    // on Discord\'s side by the user\'s locale.
-    debug: debugEnabled,
-    fallbackLng: 'en',
-    defaultNS,
-    resources: {
-      en: {
-        lib: englishLibrary,
-      },
-      nl: {
-        lib: dutchLibrary,
-      },
-    },
-  });
+export const initializeLocalization = (Lang: i18n) => {
+  Lang.addResourceBundle('en', defaultNS, englishLibrary);
+  Lang.addResourceBundle('nl', defaultNS, dutchLibrary);
 };
 
 export default Lang;
