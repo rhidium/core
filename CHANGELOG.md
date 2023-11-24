@@ -1,3 +1,11 @@
+## [1.1.3](https://github.com/rhidium/core/compare/v1.1.2...v1.1.3) (2023-11-24)
+
+
+### Bug Fixes
+
+* permLevel throttleUsage threshold ([562123e](https://github.com/rhidium/core/commit/562123e37801c0715d2512253939b58cf12cdad9))
+* use client I18N ref for localizations ([c782c1f](https://github.com/rhidium/core/commit/c782c1f4ef19eeac6b4a055a337e6183b257c44c))
+
 ## [1.1.2](https://github.com/rhidium/core/compare/v1.1.1...v1.1.2) (2023-11-24)
 
 
