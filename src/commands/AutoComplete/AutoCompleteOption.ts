@@ -198,14 +198,17 @@ export class AutoCompleteOption<T = undefined> {
       if (interaction.isChatInputCommand()) InteractionUtils.replyDynamic(this.client, interaction, {
         embeds: [
           this.client.embeds.error({
-            title: this.client.I18N.t('commands.missingRequiredOptionTitle'),
-            description: this.client.I18N.t('commands.missingRequiredACOptionDescription', { optionName: this.name }),
+            title: this.client.I18N.t('lib:commands.missingRequiredOptionTitle'),
+            description: this.client.I18N.t(
+              'lib:commands.missingRequiredACOptionDescription',
+              { optionName: this.name }
+            ),
           }),
         ],
         ephemeral: true,
       });
       else interaction.respond([{
-        name: this.client.I18N.t('commands.missingRequiredOptionTitle'),
+        name: this.client.I18N.t('lib:commands.missingRequiredOptionTitle'),
         value: 'null',
       }]);
       return AutoCompleteResponseType.MISSING_REQUIRED as H extends true

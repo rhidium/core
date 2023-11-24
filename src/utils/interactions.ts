@@ -153,7 +153,7 @@ const replyDynamic = async <I extends BaseInteraction>(
   } catch (err) {
     logReplyErr(err, content);
     const errCtx = {
-      content: client.I18N.t('commands.errorWhileReplyingToInteraction'),
+      content: client.I18N.t('lib:commands.errorWhileReplyingToInteraction'),
       ephemeral: true,
     };
     await replyFn(errCtx).catch((err: unknown) => {
@@ -225,7 +225,7 @@ const requireAvailableGuild = <I extends BaseInteraction>(
   if (!InteractionUtils.requireGuild(client, interaction)) return false;
   if (!interaction.guild.available) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: client.I18N.t('commands.serverUnavailable'),
+      content: client.I18N.t('lib:commands.serverUnavailable'),
       ephemeral: true,
     });
     return false;
@@ -307,7 +307,7 @@ const paginator = async (
 
   if (!initialReply) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: client.I18N.t('commands.missingInitialReply'),
+      content: client.I18N.t('lib:commands.missingInitialReply'),
       ephemeral: true,
       ...options,
     });
@@ -323,7 +323,7 @@ const paginator = async (
   collector.on('collect', async (button) => {
     if (button.user.id !== interaction.user.id) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: client.I18N.t('commands.isNotUserPaginator'),
+        content: client.I18N.t('lib:commands.isNotUserPaginator'),
         ephemeral: true,
         ...options,
       });
@@ -394,7 +394,7 @@ const slashConfirmationOptionHandler = (
   const value = interaction.options.getBoolean(slashConfirmationOptionName);
   if (!value) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: client.I18N.t('commands.confirmationRequired'),
+      content: client.I18N.t('lib:commands.confirmationRequired'),
       ephemeral: true,
     });
     return false;
@@ -405,12 +405,12 @@ const slashConfirmationOptionHandler = (
 const confirmationButtonRow = (client: Client) => new ActionRowBuilder<ButtonBuilder>().addComponents(
   new ButtonBuilder()
     .setCustomId(InteractionConstants.CONFIRMATION_BUTTON_CONFIRM_ID)
-    .setLabel(client.I18N.t('commands.confirmationButtonLabel'))
+    .setLabel(client.I18N.t('lib:commands.confirmationButtonLabel'))
     .setEmoji(client.clientEmojis.success)
     .setStyle(ButtonStyle.Success),
   new ButtonBuilder()
     .setCustomId(InteractionConstants.CONFIRMATION_BUTTON_CANCEL_ID)
-    .setLabel(client.I18N.t('commands.cancelButtonLabel'))
+    .setLabel(client.I18N.t('lib:commands.cancelButtonLabel'))
     .setEmoji(client.clientEmojis.error)
     .setStyle(ButtonStyle.Secondary),
 );
@@ -442,7 +442,7 @@ const promptConfirmation = async ({
     : [ confirmationRow ];
 
   const message = await InteractionUtils.replyDynamic(client, interaction, {
-    content: client.I18N.t('commands.promptConfirmation'),
+    content: client.I18N.t('lib:commands.promptConfirmation'),
     ...content,
     ...options,
     components,
@@ -451,7 +451,7 @@ const promptConfirmation = async ({
 
   if (!message) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: client.I18N.t('commands.missingInitialReply'),
+      content: client.I18N.t('lib:commands.missingInitialReply'),
       ephemeral: true,
     });
     return false;
@@ -466,7 +466,7 @@ const promptConfirmation = async ({
     collector.on('collect', async (button) => {
       if (button.user.id !== interaction.user.id) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: client.I18N.t('commands.isNotComponentUser'),
+          content: client.I18N.t('lib:commands.isNotComponentUser'),
           ephemeral: true,
         });
         return;
@@ -477,7 +477,7 @@ const promptConfirmation = async ({
         if (typeof onConfirm === 'function') await onConfirm(button);
         if (disableComponents) InteractionUtils.disableComponents(components);
         if (shouldReplyOnConfirm) await InteractionUtils.replyDynamic(client, button, {
-          content: client.I18N.t('commands.confirmationAccepted'),
+          content: client.I18N.t('lib:commands.confirmationAccepted'),
           embeds: newEmbeds,
           files: newFiles,
           components: removeComponents ? [] : components,
@@ -490,7 +490,7 @@ const promptConfirmation = async ({
         if (typeof onCancel === 'function') await onCancel(button);
         if (disableComponents) InteractionUtils.disableComponents(components);
         if (shouldReplyOnCancel) await InteractionUtils.replyDynamic(client, button, {
-          content: client.I18N.t('commands.confirmationCancelled'),
+          content: client.I18N.t('lib:commands.confirmationCancelled'),
           embeds: newEmbeds,
           files: newFiles,
           components: removeComponents ? [] : components,
@@ -503,7 +503,7 @@ const promptConfirmation = async ({
       if (collected.size) return;
       InteractionUtils.disableComponents(components);
       await InteractionUtils.replyDynamic(client, interaction, {
-        content: client.I18N.t('commands.confirmationExpired'),
+        content: client.I18N.t('lib:commands.confirmationExpired'),
         embeds: newEmbeds,
         files: newFiles,
         components: components,

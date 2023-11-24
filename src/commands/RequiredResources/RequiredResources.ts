@@ -33,7 +33,7 @@ implements IRequiredResources
     if (!match) {
       if (handleInteraction) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: client.I18N.t('commands.notAvailableInCurrentServer'),
+          content: client.I18N.t('lib:commands.notAvailableInCurrentServer'),
           ephemeral: true,
         });
       }
@@ -49,7 +49,7 @@ implements IRequiredResources
     if (!match) {
       if (handleInteraction) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: client.I18N.t('commands.notAvailableInCurrentChannel'),
+          content: client.I18N.t('lib:commands.notAvailableInCurrentChannel'),
           ephemeral: true,
         });
       }
@@ -66,7 +66,7 @@ implements IRequiredResources
       // in this DM channel
       if (handleInteraction) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: client.I18N.t('commands.notAvailableInDMs'),
+          content: client.I18N.t('lib:commands.notAvailableInDMs'),
           ephemeral: true,
         });
       }
@@ -77,7 +77,7 @@ implements IRequiredResources
       // Never matches until we **can** check if this matches
       if (handleInteraction) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: client.I18N.t('commands.requiredRolesMissingServer'),
+          content: client.I18N.t('lib:commands.requiredRolesMissingServer'),
           ephemeral: true,
         });
       }
@@ -90,7 +90,7 @@ implements IRequiredResources
     if (!match) {
       if (handleInteraction) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: client.I18N.t('commands.requiredRolesMissing'),
+          content: client.I18N.t('lib:commands.requiredRolesMissing'),
           ephemeral: true,
         });
       }
@@ -106,7 +106,7 @@ implements IRequiredResources
     if (!match) {
       if (handleInteraction) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: client.I18N.t('commands.requiredUsersMissing'),
+          content: client.I18N.t('lib:commands.requiredUsersMissing'),
           ephemeral: true,
         });
       }
@@ -124,7 +124,7 @@ implements IRequiredResources
     if (!match) {
       if (handleInteraction) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: client.I18N.t('commands.requiredCategoryMissing'),
+          content: client.I18N.t('lib:commands.requiredCategoryMissing'),
           ephemeral: true,
         });
       }
