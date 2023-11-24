@@ -61,10 +61,11 @@ const currentUTCTime = (): string => {
 };
 
 /**
-   * Takes milliseconds as input and returns the following formatting: 2 days, 5 minutes, 21 seconds
-   * @param ms Time in milliseconds
-   * @returns A human readable string
-   */
+ * Takes milliseconds as input and returns the following formatting: 2 days, 5 minutes, 21 seconds
+ * @param {number} ms Time in milliseconds
+ * @param {number} maxParts Maximum number of time units to include in the output
+ * @returns {string} A human-readable string
+ */
 const msToHumanReadableTime = (ms: number, maxParts = 2) => {
   const days = (ms / UnitConstants.MS_IN_ONE_DAY) | 0;
   const hours = ((ms % UnitConstants.MS_IN_ONE_DAY) / UnitConstants.MS_IN_ONE_HOUR) | 0;
@@ -77,12 +78,12 @@ const msToHumanReadableTime = (ms: number, maxParts = 2) => {
   if (minutes > 0) parts.push(`${minutes} minute${minutes === 1 ? '' : 's'}`);
   if (seconds > 0) parts.push(`${seconds} second${seconds === 1 ? '' : 's'}`);
 
-  const lastPart = parts.pop();
-  const formattedParts = parts.slice(0, maxParts - 1).join(', ');
+  const formattedParts = parts.slice(0, maxParts);
+  const lastPart = formattedParts.pop();
 
-  return parts.length > 0
-    ? `${formattedParts}, and ${lastPart}`
-    : lastPart ?? '0 seconds';
+  if (formattedParts.length > 0) {
+    return `${formattedParts.join(', ')}${formattedParts.length > 1 ? ',' : ''} and ${lastPart}`;
+  } else return lastPart ?? 'Just now';
 };
 
 /**
