@@ -787,7 +787,7 @@ export class BaseCommand<
       // Should only apply to "successful" commands -
       // otherwise failed-constraints commands will
       // consume throttle points
-      if (permLevel > PermLevel['Server Owner']) {
+      if (permLevel <= PermLevel['Server Owner']) {
         const isOnCooldown = this.throttleUsage(interaction, client);
         if (isOnCooldown) return false;
       }
