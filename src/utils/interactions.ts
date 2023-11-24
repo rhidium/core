@@ -25,7 +25,6 @@ import {
 import { DiscordConstants, InteractionConstants, UnitConstants } from '../constants';
 import { Client } from '../client';
 import { AvailableGuildInteraction } from '../commands/Controllers';
-import Lang from '../i18n/i18n';
 
 export interface InteractionReplyDynamicOptions {
   preferFollowUp?: boolean;
@@ -154,7 +153,7 @@ const replyDynamic = async <I extends BaseInteraction>(
   } catch (err) {
     logReplyErr(err, content);
     const errCtx = {
-      content: Lang.t('commands.errorWhileReplyingToInteraction'),
+      content: client.I18N.t('commands.errorWhileReplyingToInteraction'),
       ephemeral: true,
     };
     await replyFn(errCtx).catch((err: unknown) => {
@@ -202,7 +201,7 @@ const requireGuild = <I extends BaseInteraction>(
 ): interaction is AvailableGuildInteraction<I> => {
   if (!interaction.inGuild()) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: Lang.t('lib:commands.notAvailableInDMs'),
+      content: client.I18N.t('lib:commands.notAvailableInDMs'),
       ephemeral: true,
     });
     return false;
@@ -210,7 +209,7 @@ const requireGuild = <I extends BaseInteraction>(
 
   if (!interaction.inCachedGuild()) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: Lang.t('lib:commands.missingCachedServer'),
+      content: client.I18N.t('lib:commands.missingCachedServer'),
       ephemeral: true,
     });
     return false;
@@ -226,7 +225,7 @@ const requireAvailableGuild = <I extends BaseInteraction>(
   if (!InteractionUtils.requireGuild(client, interaction)) return false;
   if (!interaction.guild.available) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: Lang.t('commands.serverUnavailable'),
+      content: client.I18N.t('commands.serverUnavailable'),
       ephemeral: true,
     });
     return false;
@@ -308,7 +307,7 @@ const paginator = async (
 
   if (!initialReply) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: Lang.t('commands.missingInitialReply'),
+      content: client.I18N.t('commands.missingInitialReply'),
       ephemeral: true,
       ...options,
     });
@@ -324,7 +323,7 @@ const paginator = async (
   collector.on('collect', async (button) => {
     if (button.user.id !== interaction.user.id) {
       InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.isNotUserPaginator'),
+        content: client.I18N.t('commands.isNotUserPaginator'),
         ephemeral: true,
         ...options,
       });
@@ -395,7 +394,7 @@ const slashConfirmationOptionHandler = (
   const value = interaction.options.getBoolean(slashConfirmationOptionName);
   if (!value) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: Lang.t('commands.confirmationRequired'),
+      content: client.I18N.t('commands.confirmationRequired'),
       ephemeral: true,
     });
     return false;
@@ -406,12 +405,12 @@ const slashConfirmationOptionHandler = (
 const confirmationButtonRow = (client: Client) => new ActionRowBuilder<ButtonBuilder>().addComponents(
   new ButtonBuilder()
     .setCustomId(InteractionConstants.CONFIRMATION_BUTTON_CONFIRM_ID)
-    .setLabel(Lang.t('commands.confirmationButtonLabel'))
+    .setLabel(client.I18N.t('commands.confirmationButtonLabel'))
     .setEmoji(client.clientEmojis.success)
     .setStyle(ButtonStyle.Success),
   new ButtonBuilder()
     .setCustomId(InteractionConstants.CONFIRMATION_BUTTON_CANCEL_ID)
-    .setLabel(Lang.t('commands.cancelButtonLabel'))
+    .setLabel(client.I18N.t('commands.cancelButtonLabel'))
     .setEmoji(client.clientEmojis.error)
     .setStyle(ButtonStyle.Secondary),
 );
@@ -443,7 +442,7 @@ const promptConfirmation = async ({
     : [ confirmationRow ];
 
   const message = await InteractionUtils.replyDynamic(client, interaction, {
-    content: Lang.t('commands.promptConfirmation'),
+    content: client.I18N.t('commands.promptConfirmation'),
     ...content,
     ...options,
     components,
@@ -452,7 +451,7 @@ const promptConfirmation = async ({
 
   if (!message) {
     InteractionUtils.replyDynamic(client, interaction, {
-      content: Lang.t('commands.missingInitialReply'),
+      content: client.I18N.t('commands.missingInitialReply'),
       ephemeral: true,
     });
     return false;
@@ -467,7 +466,7 @@ const promptConfirmation = async ({
     collector.on('collect', async (button) => {
       if (button.user.id !== interaction.user.id) {
         InteractionUtils.replyDynamic(client, interaction, {
-          content: Lang.t('commands.isNotComponentUser'),
+          content: client.I18N.t('commands.isNotComponentUser'),
           ephemeral: true,
         });
         return;
@@ -478,7 +477,7 @@ const promptConfirmation = async ({
         if (typeof onConfirm === 'function') await onConfirm(button);
         if (disableComponents) InteractionUtils.disableComponents(components);
         if (shouldReplyOnConfirm) await InteractionUtils.replyDynamic(client, button, {
-          content: Lang.t('commands.confirmationAccepted'),
+          content: client.I18N.t('commands.confirmationAccepted'),
           embeds: newEmbeds,
           files: newFiles,
           components: removeComponents ? [] : components,
@@ -491,7 +490,7 @@ const promptConfirmation = async ({
         if (typeof onCancel === 'function') await onCancel(button);
         if (disableComponents) InteractionUtils.disableComponents(components);
         if (shouldReplyOnCancel) await InteractionUtils.replyDynamic(client, button, {
-          content: Lang.t('commands.confirmationCancelled'),
+          content: client.I18N.t('commands.confirmationCancelled'),
           embeds: newEmbeds,
           files: newFiles,
           components: removeComponents ? [] : components,
@@ -504,7 +503,7 @@ const promptConfirmation = async ({
       if (collected.size) return;
       InteractionUtils.disableComponents(components);
       await InteractionUtils.replyDynamic(client, interaction, {
-        content: Lang.t('commands.confirmationExpired'),
+        content: client.I18N.t('commands.confirmationExpired'),
         embeds: newEmbeds,
         files: newFiles,
         components: components,

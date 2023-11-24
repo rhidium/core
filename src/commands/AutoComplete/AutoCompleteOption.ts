@@ -9,7 +9,6 @@ import {
 import { Client } from '../../client';
 import { DiscordConstants } from '../../constants';
 import { InteractionUtils } from '../../utils';
-import Lang from '../../i18n/i18n';
 
 export enum AutoCompleteResponseType {
   MISSING_REQUIRED = 'missing_required',
@@ -199,14 +198,14 @@ export class AutoCompleteOption<T = undefined> {
       if (interaction.isChatInputCommand()) InteractionUtils.replyDynamic(this.client, interaction, {
         embeds: [
           this.client.embeds.error({
-            title: Lang.t('commands.missingRequiredOptionTitle'),
-            description: Lang.t('commands.missingRequiredACOptionDescription', { optionName: this.name }),
+            title: this.client.I18N.t('commands.missingRequiredOptionTitle'),
+            description: this.client.I18N.t('commands.missingRequiredACOptionDescription', { optionName: this.name }),
           }),
         ],
         ephemeral: true,
       });
       else interaction.respond([{
-        name: Lang.t('commands.missingRequiredOptionTitle'),
+        name: this.client.I18N.t('commands.missingRequiredOptionTitle'),
         value: 'null',
       }]);
       return AutoCompleteResponseType.MISSING_REQUIRED as H extends true
