@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/rhidium/core/compare/v1.1.1...v1.1.2) (2023-11-24)
+
+
+### Bug Fixes
+
+* **Lang:** use addResourceBundle ([d45fc75](https://github.com/rhidium/core/commit/d45fc75df1854e94dab924111c32e39582a24ea4))
+
 ## [1.1.1](https://github.com/rhidium/core/compare/v1.1.0...v1.1.1) (2023-11-24)
 
 
