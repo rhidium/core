@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/rhidium/core/compare/v1.1.4...v1.1.5) (2023-11-24)
+
+
+### Bug Fixes
+
+* exclude default NS for Intellisense ([d3f149b](https://github.com/rhidium/core/commit/d3f149b4bde8fe2ffc83e0eced665126c67fb014))
+
 ## [1.1.4](https://github.com/rhidium/core/compare/v1.1.3...v1.1.4) (2023-11-24)
 
 
