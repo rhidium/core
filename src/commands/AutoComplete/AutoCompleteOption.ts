@@ -30,13 +30,13 @@ export type AutoCompleteRunFunction = (
   client: Client<true>,
   interaction: AutocompleteInteraction,
 ) =>
-  | ApplicationCommandOptionChoiceData[]
-  | Promise<ApplicationCommandOptionChoiceData[]>;
+  | (ApplicationCommandOptionChoiceData)[] | AutoCompleteResponseType
+  | Promise<ApplicationCommandOptionChoiceData[] | AutoCompleteResponseType>;
 
 export type AutoCompleteGetValueFunction<T> = (
   rawValue: string,
   client: Client<true>,
-  interaction: ChatInputCommandInteraction,
+  interaction: ChatInputCommandInteraction | AutocompleteInteraction,
 ) => T | null | Promise<T | null>;
 
 export interface AutoCompleteOptions<T = undefined> {
@@ -149,6 +149,7 @@ export class AutoCompleteOption<T = undefined> {
       return;
     }
     const choices = await this.run(query, this.client, interaction);
+    if (isAutoCompleteResponseType(choices)) return;
     interaction
       .respond(choices.slice(0, DiscordConstants.MAX_AUTO_COMPLETE_COMMAND_CHOICES))
       .catch((err) => {
@@ -166,20 +167,19 @@ export class AutoCompleteOption<T = undefined> {
       });
   };
 
-  getRawValue = (interaction: ChatInputCommandInteraction) => {
+  getRawValue = (interaction: ChatInputCommandInteraction | AutocompleteInteraction) => {
+    const isRequired = interaction.isChatInputCommand() && this.data.required;
     const value =
-      interaction.options.getString(this.name, this.data.required) ?? '';
+      interaction.options.getString(this.name, isRequired) ?? '';
     return value;
   };
 
-  async getValue(
-    interaction: ChatInputCommandInteraction,
-    handleMissingWhenRequired: true,
-  ): Promise<T | AutoCompleteResponseType.MISSING_REQUIRED>;
-  async getValue(
-    interaction: ChatInputCommandInteraction,
-    handleMissingWhenRequired: boolean = true,
-  ): Promise<T | null | AutoCompleteResponseType.MISSING_REQUIRED> {
+  async getValue<H extends boolean>(
+    interaction: ChatInputCommandInteraction | AutocompleteInteraction,
+    handleMissingWhenRequired: H,
+  ): Promise<T | 
+    (H extends true ? AutoCompleteResponseType.MISSING_REQUIRED : null)
+  > {
     if (!this.client) {
       throw new Error(`AutoComplete option ${this.name} has no client`);
     }
@@ -195,8 +195,8 @@ export class AutoCompleteOption<T = undefined> {
       this.client,
       interaction,
     );
-    if (!resolvedValue && handleMissingWhenRequired) {
-      InteractionUtils.replyDynamic(this.client, interaction, {
+    if (!resolvedValue && handleMissingWhenRequired === true) {
+      if (interaction.isChatInputCommand()) InteractionUtils.replyDynamic(this.client, interaction, {
         embeds: [
           this.client.embeds.error({
             title: Lang.t('commands.missingRequiredOptionTitle'),
@@ -205,9 +205,14 @@ export class AutoCompleteOption<T = undefined> {
         ],
         ephemeral: true,
       });
-      return AutoCompleteResponseType.MISSING_REQUIRED;
+      else interaction.respond([{
+        name: Lang.t('commands.missingRequiredOptionTitle'),
+        value: 'null',
+      }]);
+      return AutoCompleteResponseType.MISSING_REQUIRED as H extends true
+        ? AutoCompleteResponseType.MISSING_REQUIRED : null;
     }
 
-    return resolvedValue;
+    return resolvedValue as T;
   }
 }
