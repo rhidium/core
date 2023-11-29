@@ -83,11 +83,9 @@ const replyFn = <I extends BaseInteraction>(
   }
 
   // Bind interaction to applicable reply function
-  if (interaction.replied || interaction.deferred) {
-    if (options?.preferFollowUp)
-      return interaction.followUp.bind(interaction);
-    else return interaction.editReply.bind(interaction);
-  } else {
+  if (options?.preferFollowUp) return interaction.followUp.bind(interaction);
+  else if (interaction.replied || interaction.deferred) return interaction.editReply.bind(interaction);
+  else {
     // Fail-safe - no reply after DiscordConstants.MS_UNTIL_INTERACTION_EXPIRES
     // but interaction wasn't deferred or replied to
     if (
