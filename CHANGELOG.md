@@ -1,3 +1,10 @@
+## [1.1.6](https://github.com/rhidium/core/compare/v1.1.5...v1.1.6) (2023-11-29)
+
+
+### Bug Fixes
+
+* use preferFollowUp regardless of interaction replied/deferred state ([5a7fc37](https://github.com/rhidium/core/commit/5a7fc370086bf514ddf85ed1d7fe596a4eaea0b5))
+
 ## [1.1.5](https://github.com/rhidium/core/compare/v1.1.4...v1.1.5) (2023-11-24)
 
 
