@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/rhidium/core/compare/v1.1.6...v1.2.0) (2023-12-08)
+
+
+### Features
+
+* **QueueManager:** process first item when full, more callbacks ([43e3442](https://github.com/rhidium/core/commit/43e3442f40193de182062462e6610518ab947d4c))
+
 ## [1.1.6](https://github.com/rhidium/core/compare/v1.1.5...v1.1.6) (2023-11-29)
 
 
