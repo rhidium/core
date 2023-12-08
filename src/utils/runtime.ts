@@ -1,5 +1,6 @@
 import { Colors } from 'discord.js';
 import { ArrayUtils } from '.';
+import { UnitConstants } from '..';
 
 const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -8,7 +9,7 @@ const wait = sleep;
 
 const waitUntil = async (
   condition: () => boolean | Promise<boolean>,
-  interval = 1000,
+  interval = UnitConstants.MS_IN_ONE_SECOND,
 ) => {
   while (!(await condition())) await sleep(interval);
 };
@@ -16,7 +17,7 @@ const waitUntil = async (
 const waitUntilTimeout = async (
   condition: () => boolean | Promise<boolean>,
   timeout: number,
-  interval = 1000,
+  interval = UnitConstants.MS_IN_ONE_SECOND,
 ) => {
   const start = Date.now();
   while (!(await condition()) && Date.now() - start < timeout)

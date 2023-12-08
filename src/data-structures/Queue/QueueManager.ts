@@ -14,6 +14,10 @@ export interface QueueManagerOptions<T> {
    */
   maxQueueSize?: number;
   /**
+   * Should we skip processing the first item in the queue when it's full and an item is added?
+   */
+  skipProcessOnFull?: boolean;
+  /**
    * The amount of time in ms to wait before retrieving the next item in the queue
    */
   nextDelay?: number;
@@ -25,6 +29,14 @@ export interface QueueManagerOptions<T> {
    * Should we stop processing once the queue is empty, or wait for more items to be added?
    */
   stopOnEmpty?: boolean;
+  /**
+   * Callback to run when an item is about to be processed
+   */
+  onProcessStart?: QueueCallbackFunction<T>;
+  /**
+   * Callback to run when an item is processed
+   */
+  onProcessEnd?: QueueCallbackFunction<T>;
   /**
    * Callback to run when an item is added to the queue
    */
@@ -48,42 +60,56 @@ export class QueueManager<T> implements QueueManagerOptions<T> {
   maxQueueSize: number;
   next = () => this.queue.dequeue();
   nextDelay: number;
+  skipProcessOnFull: boolean;
   waitOnEmpty: number;
   stopOnEmpty = false;
   resumeOnEmptyTimeout: NodeJS.Timeout | undefined;
   processInterval: NodeJS.Timeout | undefined;
   processFunction?: QueueCallbackFunction<T> | undefined;
+  onProcessStart?: QueueCallbackFunction<T>;
+  onProcessEnd?: QueueCallbackFunction<T>;
   onAdd?: QueueCallbackFunction<T>;
   onRemove?: QueueCallbackFunction<T>;
   onClear?: () => void | Promise<void>;
   onEmpty?: () => void | Promise<void>;
-  lifetimeItemsProcessed = 0;
-  lifetimeItemsAdded = 0;
-  lifetimeItemsRemoved = 0;
-  lifetimeItemsProcessedPerSecond = 0;
-  lifetimeItemsAddedPerSecond = 0;
-  lifetimeItemsRemovedPerSecond = 0;
+  itemsProcessed = 0;
+  itemsAdded = 0;
+  itemsRemoved = 0;
+  itemsProcessedPerSecond = 0;
+  itemsAddedPerSecond = 0;
+  itemsRemovedPerSecond = 0;
   averageProcessTime = 0;
   lowestProcessTime = 0;
   highestProcessTime = 0;
 
   static readonly default = {
     maxQueueSize: Infinity,
+    skipProcessOnFull: false,
     nextDelay: 0,
     waitOnEmpty: 125,
   };
 
-  constructor(options: QueueManagerOptions<T> | QueueCallbackFunction<T>, _queue: T[] = []) {
+  constructor(options: QueueManagerOptions<T> | QueueCallbackFunction<T>, queue: T[] = []) {
     const resolvedOptions = typeof options === 'function' ? { processFunction: options } : options;
-    this.queue = new Queue<T>(_queue);
+    this.queue = new Queue<T>(queue);
+    this.skipProcessOnFull = resolvedOptions.skipProcessOnFull ?? QueueManager.default.skipProcessOnFull;
     this.maxQueueSize = resolvedOptions.maxQueueSize ?? QueueManager.default.maxQueueSize;
     this.nextDelay = resolvedOptions.nextDelay ?? QueueManager.default.nextDelay;
     this.waitOnEmpty = resolvedOptions.waitOnEmpty ?? QueueManager.default.waitOnEmpty;
     this.processFunction = resolvedOptions.processFunction;
+    if (resolvedOptions.onProcessStart) this.onProcessStart = resolvedOptions.onProcessStart;
+    if (resolvedOptions.onProcessEnd) this.onProcessEnd = resolvedOptions.onProcessEnd;
     if (resolvedOptions.onAdd) this.onAdd = resolvedOptions.onAdd;
     if (resolvedOptions.onRemove) this.onRemove = resolvedOptions.onRemove;
     if (resolvedOptions.onClear) this.onClear = resolvedOptions.onClear;
     if (resolvedOptions.onEmpty) this.onEmpty = resolvedOptions.onEmpty;
+  }
+
+  private async processItem(item: T | undefined) {
+    if (item === undefined) return;
+    if (this.onProcessStart) await this.onProcessStart(item);
+    if (this.processFunction) await this.processFunction(item);
+    if (this.onProcessEnd) await this.onProcessEnd(item);
   }
 
   /**
@@ -106,13 +132,14 @@ export class QueueManager<T> implements QueueManagerOptions<T> {
         }
 
         const start = process.hrtime();
-        if (this.processFunction) await this.processFunction(nextItem);
+        await this.processItem(nextItem);
         const end = process.hrtime(start);
+
         resolve(nextItem);
 
-        const processTime = end[0] * 1000 + end[1] / 1000000;
-        this.lifetimeItemsProcessed++;
-        this.lifetimeItemsProcessedPerSecond = this.lifetimeItemsProcessed
+        const processTime = end[0] * UnitConstants.MS_IN_ONE_SECOND + end[1] / UnitConstants.NS_IN_ONE_MS;
+        this.itemsProcessed++;
+        this.itemsProcessedPerSecond = this.itemsProcessed
           / (Date.now() / UnitConstants.MS_IN_ONE_SECOND);
         this.averageProcessTime = (this.averageProcessTime + processTime) / 2;
         this.lowestProcessTime = Math.min(this.lowestProcessTime, processTime);
@@ -127,10 +154,15 @@ export class QueueManager<T> implements QueueManagerOptions<T> {
    * @param item The item to add to the queue
    */
   add(item: T) {
-    this.lifetimeItemsAdded++;
-    this.lifetimeItemsAddedPerSecond = this.lifetimeItemsAdded / (Date.now() / UnitConstants.MS_IN_ONE_SECOND);
+    this.itemsAdded++;
+    this.itemsAddedPerSecond = this.itemsAdded / (Date.now() / UnitConstants.MS_IN_ONE_SECOND);
     if (this.queue.length === this.maxQueueSize) {
-      this.queue.dequeue();
+      const first = this.next();
+      if (
+        first
+        && !this.skipProcessOnFull
+        && this.processFunction
+      ) this.processItem(first);
     }
     if (this.onAdd) this.onAdd(item);
     this.queue.enqueue(item);
@@ -141,8 +173,8 @@ export class QueueManager<T> implements QueueManagerOptions<T> {
    * @param item The item to remove from the queue
    */
   remove(item: T) {
-    this.lifetimeItemsRemoved++;
-    this.lifetimeItemsRemovedPerSecond = this.lifetimeItemsRemoved / (Date.now() / UnitConstants.MS_IN_ONE_SECOND);
+    this.itemsRemoved++;
+    this.itemsRemovedPerSecond = this.itemsRemoved / (Date.now() / UnitConstants.MS_IN_ONE_SECOND);
     const removed = this.queue.remove(item);
     if (removed && this.onRemove) this.onRemove(item);
     return removed;

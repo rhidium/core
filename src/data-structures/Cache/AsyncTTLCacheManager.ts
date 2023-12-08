@@ -1,4 +1,5 @@
 import { TTLCacheManager, TTLCacheManagerOptions } from '.';
+import { UnitConstants } from '../..';
 
 export interface AsyncTTLCacheManagerOptions<T> extends TTLCacheManagerOptions {
   /** Function to fetch data for a key */
@@ -70,7 +71,7 @@ export class AsyncTTLCacheManager<T> extends TTLCacheManager<T> {
     const start = process.hrtime();
     const data = await this.fetchFunction(id);
     const end = process.hrtime(start);
-    const ms = end[0] * 1000 + end[1] / 1000000;
+    const ms = end[0] * UnitConstants.MS_IN_ONE_SECOND + end[1] / UnitConstants.NS_IN_ONE_MS;
 
     this.fetchTotalMs += ms;
     if (this.fetchHighestMs < ms) this.fetchHighestMs = ms;

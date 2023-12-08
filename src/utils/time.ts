@@ -9,10 +9,10 @@ const formatter = new Intl.DateTimeFormat('en-US', {
   timeZone: 'UTC',
 });
 
-const unixNow = (): number => Math.floor(Date.now() / 1000);
+const unixNow = (): number => Math.floor(Date.now() / UnitConstants.MS_IN_ONE_SECOND);
 
 const unixTs = (timestamp: number): number =>
-  Math.floor(timestamp / 1000);
+  Math.floor(timestamp / UnitConstants.MS_IN_ONE_SECOND);
 
 const discordTimestamp = (
   timestamp: number,
