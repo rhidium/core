@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/rhidium/core/compare/v1.2.0...v1.2.1) (2023-12-26)
+
+
+### Bug Fixes
+
+* bad resolve of commandId for modal submits ([c9cab00](https://github.com/rhidium/core/commit/c9cab00ea5b526eda5a97fe5c05d46d0e742f119))
+
 # [1.2.0](https://github.com/rhidium/core/compare/v1.1.6...v1.2.0) (2023-12-08)
 
 
