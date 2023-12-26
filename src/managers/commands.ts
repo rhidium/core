@@ -1058,7 +1058,7 @@ export class CommandManager {
       ? interaction.commandName
       : interaction.isAutocomplete()
         ? interaction.options.getFocused(true).name
-        : interaction.isMessageComponent()
+        : interaction.isMessageComponent() || interaction.isModalSubmit()
           ? interaction.customId
           : interaction.id;
 }
