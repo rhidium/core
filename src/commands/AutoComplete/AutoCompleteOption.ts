@@ -113,7 +113,8 @@ export class AutoCompleteOption<T = undefined> {
     const data = new SlashCommandStringOption()
       .setAutocomplete(true)
       .setName(options.name)
-      .setDescription(options.description);
+      .setDescription(options.description)
+      .setRequired(options.required ?? false);
     this.run = options.run;
     this.trimQuery = options.trimQuery ?? true;
     this.lowercaseQuery = options.lowercaseQuery ?? true;
