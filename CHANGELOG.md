@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/rhidium/core/compare/v1.5.0...v1.5.1) (2024-01-13)
+
+
+### Bug Fixes
+
+* properly resolve dynamic component id ([d0bb38b](https://github.com/rhidium/core/commit/d0bb38b09b547058753401aac6e6d3b7d52bfdcf))
+
 # [1.5.0](https://github.com/rhidium/core/compare/v1.4.0...v1.5.0) (2024-01-13)
 
 
