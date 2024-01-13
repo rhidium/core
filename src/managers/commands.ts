@@ -1050,10 +1050,7 @@ export class CommandManager {
   commandById = (id: string) => this.chatInput.find((e) => e.data.name === id)
     ?? this.userContextMenus.find((e) => e.data.name === id)
     ?? this.messageContextMenus.find((e) => e.data.name === id)
-    ?? this.componentCommands.find((e) => {
-      console.log(id, e.customId, e.data.name);
-      return e.customId === id;
-    });
+    ?? this.componentCommands.find((e) => e.customId === id);
 
     
   resolveCommandId = (interaction: BaseInteraction): string =>
