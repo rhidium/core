@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/rhidium/core/compare/v1.4.0...v1.5.0) (2024-01-13)
+
+
+### Features
+
+* live debugging for dynamic component ids ([95bb7ef](https://github.com/rhidium/core/commit/95bb7ef9797e126bc165d151e6e62c6b15aa4ab6))
+
 # [1.4.0](https://github.com/rhidium/core/compare/v1.3.0...v1.4.0) (2024-01-13)
 
 
