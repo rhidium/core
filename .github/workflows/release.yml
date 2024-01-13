@@ -24,6 +24,7 @@ jobs:
             @semantic-release/github \
             @semantic-release/npm \
             @semantic-release/release-notes-generator
+      - run: npm run build
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
