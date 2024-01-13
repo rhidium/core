@@ -302,7 +302,12 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       // Try to resolve the command from the component handler identifier
       if (!command && commandId.indexOf(Constants.EMIT_COMPONENT_HANDLER_IDENTIFIER) > 0) {
         const [tryCommandId] = commandId.split(Constants.EMIT_COMPONENT_HANDLER_IDENTIFIER) as [string];
+        console.log(
+          tryCommandId,
+          commandId.split(Constants.EMIT_COMPONENT_HANDLER_IDENTIFIER),
+        );
         const tryCommand = this.commandManager.commandById(tryCommandId);
+        console.log(!!tryCommand);
         if (tryCommand) command = tryCommand;
       }
 
