@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/rhidium/core/compare/v1.3.0...v1.4.0) (2024-01-13)
+
+
+### Features
+
+* test commit, trigger release npm workflow ([1d57aee](https://github.com/rhidium/core/commit/1d57aee0d51a93eb5f682109565ccf3670e98c1a))
+
 # [1.3.0](https://github.com/rhidium/core/compare/v1.2.2...v1.3.0) (2024-01-13)
 
 
