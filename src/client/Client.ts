@@ -267,7 +267,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
       const commandId = this.commandManager.resolveCommandId(interaction);
 
       // Resolve the command
-      const command = this.commandManager.commandById(commandId);
+      let command = this.commandManager.commandById(commandId);
 
       // At the time of writing this auto complete is the only
       // non-repliable interaction - separate handler as it
@@ -297,6 +297,13 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
           'which is used for emitting component handlers',
         ].join(' '));
         return;
+      }
+
+      // Try to resolve the command from the component handler identifier
+      if (!command && commandId.indexOf(Constants.EMIT_COMPONENT_HANDLER_IDENTIFIER) > 0) {
+        const [tryCommandId] = commandId.split(Constants.EMIT_COMPONENT_HANDLER_IDENTIFIER) as [string];
+        const tryCommand = this.commandManager.commandById(tryCommandId);
+        if (tryCommand) command = tryCommand;
       }
 
       // Make sure we have a command
