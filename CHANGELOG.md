@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/rhidium/core/compare/v1.5.1...v1.5.2) (2024-01-13)
+
+
+### Bug Fixes
+
+* live debugging of dynamic component ids ([2ccf0f1](https://github.com/rhidium/core/commit/2ccf0f1195a9ef6f9c9da259c1db4cdaeccf088e))
+
 ## [1.5.1](https://github.com/rhidium/core/compare/v1.5.0...v1.5.1) (2024-01-13)
 
 
