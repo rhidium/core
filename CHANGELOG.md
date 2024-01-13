@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/rhidium/core/compare/v1.2.2...v1.3.0) (2024-01-13)
+
+
+### Features
+
+* try command for dynamic component ids (@) ([1fc91db](https://github.com/rhidium/core/commit/1fc91db297723467d0cb0cd11eb725d8e4b89db6))
+
 ## [1.2.2](https://github.com/rhidium/core/compare/v1.2.1...v1.2.2) (2023-12-27)
 
 
