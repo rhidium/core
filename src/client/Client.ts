@@ -294,7 +294,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         this.logger.debug([
           `Skipping component interaction for command "${commandId}"`,
           `as it starts with the reserved identifier "${Constants.EMIT_COMPONENT_HANDLER_IDENTIFIER}"`,
-          'which is used for emitting component handlers',
+          'which is used for omitting component handlers',
         ].join(' '));
         return;
       }
