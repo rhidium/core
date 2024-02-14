@@ -615,11 +615,6 @@ export class BaseCommand<
       interaction.member,
       interaction.guild,
     );
-    console.log({
-      permLevel,
-      thisPermLevel: this.permLevel,
-      result: permLevel < this.permLevel,
-    });
     if (permLevel < this.permLevel) {
       InteractionUtils.replyDynamic(client, interaction, {
         content: client.I18N.t('lib:commands.permLevelTooLow'),
