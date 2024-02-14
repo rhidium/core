@@ -1,6 +1,6 @@
 {
   "name": "@rhidium/core",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "Quickly and easily create powerful Discord bots using a powerful all-in-one framework.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

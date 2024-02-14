@@ -1,3 +1,10 @@
+## [1.5.5](https://github.com/rhidium/core/compare/v1.5.4...v1.5.5) (2024-02-14)
+
+
+### Bug Fixes
+
+* remove live debugging ([eda6d9e](https://github.com/rhidium/core/commit/eda6d9ed16287568b1ff35d817d3c4b7836d80a5))
+
 ## [1.5.4](https://github.com/rhidium/core/compare/v1.5.3...v1.5.4) (2024-02-14)
 
 
