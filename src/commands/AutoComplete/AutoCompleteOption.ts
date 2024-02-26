@@ -164,6 +164,11 @@ export class AutoCompleteOption<T = undefined> {
           }
           return;
         }
+
+        logger.error(
+          `Error encountered while handling AutoComplete option ${this.name}`,
+          err,
+        );
       });
   };
 
