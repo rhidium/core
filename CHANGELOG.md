@@ -1,3 +1,10 @@
+## [1.5.6](https://github.com/rhidium/core/compare/v1.5.5...v1.5.6) (2024-02-26)
+
+
+### Bug Fixes
+
+* logging for AutoCompleteOption non-expired errors ([ca24ba4](https://github.com/rhidium/core/commit/ca24ba41f2e5b791ce7c383e712c86433d09b1a7))
+
 ## [1.5.5](https://github.com/rhidium/core/compare/v1.5.4...v1.5.5) (2024-02-14)
 
 
