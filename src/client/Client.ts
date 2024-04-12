@@ -76,6 +76,12 @@ export interface ClientOptions {
    * config is 2 usages per 5 seconds - short burst protection
    */
   defaultCommandThrottling: CommandThrottleOptions;
+  /**
+   * If a command has a permission level of Administrator, should we
+   * automatically hide that command from normal users, by using
+   * `#setDefaultMemberPermissions(0)` on the command?
+   */
+  defaultLockMemberPermissions: boolean;
   /** Custom permissions for the client */
   internalPermissions: ClientPermissionOptions;
   /**

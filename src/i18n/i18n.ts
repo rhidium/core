@@ -11,7 +11,7 @@ export const dutchLibrary = nlLib;
 
 export type ResourceBundle = {
   lng: LocaleString;
-  resources: typeof enLib;
+  resources: typeof englishLibrary;
 };
 
 export const defaultResourceBundles = [

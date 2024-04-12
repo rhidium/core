@@ -360,10 +360,10 @@ export class BaseCommand<
 
       if (this instanceof ChatInputCommand) {
         if (
-          this.permLevel >= PermLevel.Administrator &&
-          typeof this.data.default_member_permissions === 'undefined'
-        )
-          this.data.setDefaultMemberPermissions(0);
+          this.permLevel >= PermLevel.Administrator
+          && this.client.extendedOptions.defaultLockMemberPermissions
+          && typeof this.data.default_member_permissions === 'undefined'
+        ) this.data.setDefaultMemberPermissions(0);
 
         this.data.setNSFW(this.nsfw);
         // Skip if we're missing required description
