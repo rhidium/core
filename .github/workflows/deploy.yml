@@ -13,6 +13,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Only continue if the workflow run was successful
+    # Subsequent jobs will not run if this job fails,
+    # because of the `needs` parameters in the other jobs.
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v3
 
