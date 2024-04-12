@@ -350,11 +350,6 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
         'please investigate and create a GitHub issue if you believe this is a bug.',
       ];
 
-      // [DEV] - How do we cast Interaction<CacheType> from listener
-      // to I extends BaseInteraction - we can't use generics because
-      // we don't know the type of the interaction at compile time
-      // For now, it's not pretty, but it works!
-
       if (command instanceof ChatInputCommand) {
         if (!interaction.isChatInputCommand()) {
           throw new Error([

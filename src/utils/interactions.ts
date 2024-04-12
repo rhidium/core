@@ -299,10 +299,6 @@ const paginator = async (
     ...options,
   });
 
-  // [DEV] - DEV
-  // select menu to paginator
-  // @customId handling and documentation
-
   if (!initialReply) {
     InteractionUtils.replyDynamic(client, interaction, {
       content: client.I18N.t('lib:commands.missingInitialReply'),
