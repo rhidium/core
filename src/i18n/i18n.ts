@@ -12,7 +12,7 @@ export const dutchLibrary = nlLib;
 export type ResourceBundle = {
   lng: string;
   ns: string;
-  resources: unknown;
+  resources: typeof enLib;
   deep?: boolean;
   overwrite?: boolean;
 };
