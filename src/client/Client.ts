@@ -109,7 +109,7 @@ export interface ClientOptions {
 export interface RequiredClientOptions<Ready extends boolean = boolean> {
   /** Discord bot token */
   token: If<Ready, string, string | null>
-  /** The bot's Discord user id/application id */
+  /** The bot' application id */
   applicationId: string;
   directories: CommandManagerCommandsOptions;
   /** Customize colors for the client */
