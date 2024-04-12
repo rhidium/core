@@ -912,9 +912,10 @@ export class BaseCommand<
       const relativeOutput =
           expiresIn === '0 seconds' ? '1 second' : expiresIn;
       InteractionUtils.replyDynamic(client, interaction, {
-        content: `You are on cooldown (type ${
-          CommandCooldownType[cooldown.type]
-        }) for this command - please wait **${relativeOutput}** before using this command again`,
+        content: client.I18N.t('lib:commands.onCooldown', {
+          type: CommandCooldownType[cooldown.type],
+          expiresIn: relativeOutput,
+        }),
         ephemeral: true,
       });
       return true;
