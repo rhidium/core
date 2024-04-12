@@ -76,9 +76,6 @@ const getInvalidPerms = (permArr: bigint[]) =>
 
 /**
  * Check if a user has specific permissions in a channel
- * @param userId The ID of the user
- * @param channel The channel to check permissions in
- * @param permArr The array of permissions to check for
  * @returns True if the member has all permissions,
  * or the array of missing permissions
  */

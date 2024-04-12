@@ -113,7 +113,6 @@ export class Middleware<Context extends MiddlewareContext> {
 
   /**
    * Executes this middleware
-   * @param context The context of the middleware
    */
   run = async (
     context: RuntimeContext<Context>,
@@ -150,7 +149,6 @@ export class Middleware<Context extends MiddlewareContext> {
 
   /**
    * Updates the runtime statistics for this middleware
-   * @param runtime The runtime of this middleware
    */
   updateRuntimeStatistics = (runtime: number): void => {
     this.runtimeAverage = this.runtimeTotal / ++this.executedCount;

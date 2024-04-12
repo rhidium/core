@@ -53,12 +53,7 @@ const randomColorKey = () => ArrayUtils.randomItemKey(Colors);
  * 
  * Note: This function is intended to be used in places where TypeScript
  * cannot infer that a condition is true, but the developer knows that
- * it is true
- * 
- * Note: Not compatible with arrow functions
- * 
- * @param condition The condition to assert
- * @param msg The message to throw if the condition is false
+ * it is true. This is useful for type narrowing in TypeScript.
  */
 function assert(condition: unknown, msg?: string): asserts condition {
   if (!condition) {

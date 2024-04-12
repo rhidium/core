@@ -181,8 +181,6 @@ export interface BaseCommandOptions<
   aliasOf?: CommandType | null;
   /**
    * The function to run when the command is executed
-   * @param client The client instance
-   * @param interaction The interaction that triggered this command
    */
   run: RunFunction<I>;
   /**
@@ -447,7 +445,6 @@ export class BaseCommand<
 
   /**
    * Defers the reply to `run` interactions internally if possible
-   * @param interaction The interaction to defer the reply for
    */
   deferReplyInternal = async (interaction: BaseInteraction) => {
     if (
@@ -725,8 +722,6 @@ export class BaseCommand<
   /**
    * Make sure the command matches all constraints - things like
    * required Discord permissions, internal permissions, NSFW channels, etc.
-   * @param command The command to check the constraints for
-   * @param interaction The interaction that triggered the command
    * @returns True if the command matches all constraints (should execute), false otherwise
    */
   matchConstraints = async (
@@ -881,7 +876,6 @@ export class BaseCommand<
   /**
    * Throttle command usage, make sure we don't exceed the command's
    * configured cooldown
-   * @param interaction
    * @returns Wether or not the command is on cooldown for this interaction
    */
   throttleUsage = (interaction: I, client: Client): boolean => {

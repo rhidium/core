@@ -131,7 +131,6 @@ export class AutoCompleteOption<T = undefined> {
 
   /**
    * Handle an auto-complete interaction for this option.
-   * @param interaction The interaction to handle.
    */
   handleInteraction = async (interaction: AutocompleteInteraction) => {
     if (!this.client) {

@@ -699,7 +699,6 @@ export class CommandManager {
    * Check if any changes have been made to the commands
    * since the last time we deployed them, and if so,
    * deploy the changes
-   * @param options Command deployment options
    * @returns Wether or not the commands have been
    * deployed because of changes
    */

@@ -151,7 +151,6 @@ export class QueueManager<T> implements QueueManagerOptions<T> {
 
   /**
    * Adds an item to the queue
-   * @param item The item to add to the queue
    */
   add(item: T) {
     this.itemsAdded++;
@@ -170,7 +169,6 @@ export class QueueManager<T> implements QueueManagerOptions<T> {
 
   /**
    * Removes an item from the queue
-   * @param item The item to remove from the queue
    */
   remove(item: T) {
     this.itemsRemoved++;

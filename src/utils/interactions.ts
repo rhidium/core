@@ -56,8 +56,6 @@ export type PromptConfirmationOptions = {
    * ```ts
    * InteractionUtils.replyFn(interaction)(content);
    * ```
-   * @param interaction The interaction to resolve the reply function for
-   * @param preferFollowUp Whether to prefer a follow-up reply over an edit
    * @returns The applicable reply function for the given interaction and options
    */
 const replyFn = <I extends BaseInteraction>(
@@ -118,8 +116,6 @@ const replyFn = <I extends BaseInteraction>(
    * log critical errors if they are encountered while replying
    * to interactions - it's worth all the client not null checks
    *
-   * @param interaction The interaction to reply to
-   * @param content The content/ctx to reply with
    * @returns Reply method return value - use `fetchReply` if appropriate
    */
 const replyDynamic = async <I extends BaseInteraction>(
