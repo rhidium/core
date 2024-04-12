@@ -13,7 +13,6 @@ export enum FindResourceAccessor {
   ROLE = 'roles',
   MEMBER = 'members',
   USER = 'users',
-  // [DEV] - Could use a lot more accessors for resources
 }
 
 export type ResourceTypeMap = {
@@ -24,7 +23,7 @@ export type ResourceTypeMap = {
   [FindResourceAccessor.USER]: APIUser;
 };
 
-// Define a conditional type to map accessors to return types
+// Define a conditional type to map accessors to their return types
 export type ReturnTypeForAccessor<T extends FindResourceAccessor> = 
   T extends FindResourceAccessor.CHANNEL ? APIChannel :
   T extends FindResourceAccessor.GUILD ? APIGuild :
