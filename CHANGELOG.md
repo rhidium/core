@@ -1,3 +1,16 @@
+# [1.6.0](https://github.com/rhidium/core/compare/v1.5.6...v1.6.0) (2024-04-12)
+
+
+### Bug Fixes
+
+* **Lang:** set default value for overwrite to true ([b6f1ae1](https://github.com/rhidium/core/commit/b6f1ae113ab43d3612717110426c1854720e3c59))
+* typeof Resource for language bundles ([9f15294](https://github.com/rhidium/core/commit/9f15294cde12bbb22c20343cf02abcfad5f14e02))
+
+
+### Features
+
+* allow overwriting internal translations ([1ae3c41](https://github.com/rhidium/core/commit/1ae3c412b12848b43d2710f817a48393ed5063aa))
+
 ## [1.5.6](https://github.com/rhidium/core/compare/v1.5.5...v1.5.6) (2024-02-26)
 
 
