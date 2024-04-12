@@ -21,7 +21,7 @@
     "dev": "npm run start:dev",
     "start:dev": "ts-node-dev --respawn --notify --transpile-only src/index.ts --NODE_ENV=development",
     "commit": "cz",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
