@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/rhidium/core/compare/v1.6.1...v1.7.0) (2024-04-12)
+
+
+### Features
+
+* add defaultLockMemberPermissions option for admin commands ([e136457](https://github.com/rhidium/core/commit/e13645751137989a65d02600dd3d899e77735943))
+
 ## [1.6.1](https://github.com/rhidium/core/compare/v1.6.0...v1.6.1) (2024-04-12)
 
 
