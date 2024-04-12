@@ -1,6 +1,7 @@
 name: Deploy
 
-# This deploy action only generates a new documentation on the target server.
+# This deploy action only generates a new documentation build on the target server.
+# You should really consider using a more robust deployment strategy, like Teleport with Docker.
 
 on:
   workflow_dispatch:
