@@ -5,7 +5,7 @@
   ],
   "out": "./docs",
   "theme": "default",
-  "plugin": [ "typedoc-plugin-djs-links" ],
+  // "plugin": [ "typedoc-plugin-djs-links" ],
   "tsconfig": "./tsconfig.json",
   "includeVersion": false
 }
