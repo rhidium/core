@@ -699,7 +699,6 @@ export class CommandManager {
    * Check if any changes have been made to the commands
    * since the last time we deployed them, and if so,
    * deploy the changes
-   * @param options Command deployment options
    * @returns Wether or not the commands have been
    * deployed because of changes
    */
@@ -965,58 +964,65 @@ export class CommandManager {
     return embed;
   };
 
-  categoryEmbed = async (
+  categoryEmbeds = async (
     category: string,
     commands: Collection<string, CommandType>,
   ) => {
     const { client } = this;
     const apiCommandData = await this.commandAPIData();
-    const embed = client.embeds.info({
-      title: `Category: ${StringUtils.titleCase(category)}`,
-      description: `Commands in this category: ${commands.size}`,
-      fields: commands
-        .toJSON() // [DEV] - Implement re-usable pagination module
-        .slice(0, EmbedConstants.MAX_FIELDS_LENGTH)
-        .map((e) => {
-          const apiCmd = apiCommandData?.find((f) => f.name === e.data.name);
-          const isSubCmdGroupOnlyCmd = !apiCmd?.options.find(
-            (e) => e.type !== ApplicationCommandOptionType.SubcommandGroup
-            && e.type !== ApplicationCommandOptionType.Subcommand,
-          );
-          const optionsOutput = apiCmd && apiCmd.options.length > 0
-            ? ` +${apiCmd.options.length} option${apiCmd.options.length === 1 ? '' : 's'}`
-            : null;
-          const aliasOutputStandalone = e.aliases.length > 0
-            ? ` +${e.aliases.length} alias${e.aliases.length === 1 ? '' : 'es'}`
-            : '';
-          const aliasOutput = aliasOutputStandalone
-            ? optionsOutput === null
-              ? aliasOutputStandalone
-              : `, ${aliasOutputStandalone}`
-            : '';
-          const nameOutput = apiCmd
-            ? `</${apiCmd.name}:${apiCmd.id}>`
-            : `/${e.data.name}`;
-          const nameWithOptionsOutput = apiCmd
-            ? `${nameOutput}${isSubCmdGroupOnlyCmd ? '' : optionsOutput ?? ''}${aliasOutput }`
-            : e.data.name;
-          const subCmdOnlyOutput = isSubCmdGroupOnlyCmd
-            ? apiCmd?.options.map((f) => {
-              return stripIndents`
-                **${nameOutput} ${f.name}** - ${f.description}
-              `;
-            })
-            : null;
-          let description = e instanceof ChatInputCommand ? e.data.description : 'n/a';
-          if (subCmdOnlyOutput) description += `\n${subCmdOnlyOutput.join('\n')}`;
-          return {
-            name: `**${nameWithOptionsOutput}**`,
-            value: description,
-            inline: false,
-          };
-        }),
-    });
-    return embed;
+    const allFields = commands
+      .toJSON()
+      .map((e) => {
+        const apiCmd = apiCommandData?.find((f) => f.name === e.data.name);
+        const isSubCmdGroupOnlyCmd = !apiCmd?.options.find(
+          (e) => e.type !== ApplicationCommandOptionType.SubcommandGroup
+        && e.type !== ApplicationCommandOptionType.Subcommand,
+        );
+        const optionsOutput = apiCmd && apiCmd.options.length > 0
+          ? ` +${apiCmd.options.length} option${apiCmd.options.length === 1 ? '' : 's'}`
+          : null;
+        const aliasOutputStandalone = e.aliases.length > 0
+          ? ` +${e.aliases.length} alias${e.aliases.length === 1 ? '' : 'es'}`
+          : '';
+        const aliasOutput = aliasOutputStandalone
+          ? optionsOutput === null
+            ? aliasOutputStandalone
+            : `, ${aliasOutputStandalone}`
+          : '';
+        const nameOutput = apiCmd
+          ? `</${apiCmd.name}:${apiCmd.id}>`
+          : `/${e.data.name}`;
+        const nameWithOptionsOutput = apiCmd
+          ? `${nameOutput}${isSubCmdGroupOnlyCmd ? '' : optionsOutput ?? ''}${aliasOutput }`
+          : e.data.name;
+        const subCmdOnlyOutput = isSubCmdGroupOnlyCmd
+          ? apiCmd?.options.map((f) => {
+            return stripIndents`
+            **${nameOutput} ${f.name}** - ${f.description}
+          `;
+          })
+          : null;
+        let description = e instanceof ChatInputCommand ? e.data.description : 'n/a';
+        if (subCmdOnlyOutput) description += `\n${subCmdOnlyOutput.join('\n')}`;
+        return {
+          name: `**${nameWithOptionsOutput}**`,
+          value: description,
+          inline: false,
+        };
+      });
+    const chunkSize = EmbedConstants.MAX_FIELDS_LENGTH;
+    const embeds = [];
+    for (let i = 0; i < allFields.length; i += chunkSize) {
+      const fields = allFields.slice(i, i + chunkSize);
+      const embed = client.embeds.info({
+        title: `Category: ${StringUtils.titleCase(category)}`,
+        description: `Commands in this category: ${commands.size}`,
+        fields,
+      });
+      embeds.push(embed);
+    }
+
+    return embeds;
   };
 
   mapCommandsByCategory = (

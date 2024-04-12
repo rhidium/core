@@ -28,7 +28,6 @@ export interface FileLoggerOptions {
 /**
  * This class is responsible for logging to files.
  * It's used by the console logger, and is not meant to be used directly.
- * [DEV]: Should probably merge console logger into this one.
  */
 export class FileLogger {
   id: string;

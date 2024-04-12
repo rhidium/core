@@ -26,9 +26,6 @@ export interface TTLCacheManagerOptions {
   onCapacityExceeded?: (key: string) => void | Promise<void>;
   /** Callback to run when cache is cleared */
   onClear?: (itemCount: number) => void | Promise<void>;
-  // [DEV] TODO: Implement cache stores, e.g. Redis
-  /** Cache store to use */
-  // store?: AllCacheStores;
 }
 
 export class TTLCacheManager<T>

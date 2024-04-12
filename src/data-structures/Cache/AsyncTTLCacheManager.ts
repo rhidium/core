@@ -3,7 +3,7 @@ import { UnitConstants } from '../..';
 
 export interface AsyncTTLCacheManagerOptions<T> extends TTLCacheManagerOptions {
   /** Function to fetch data for a key */
-  fetchFunction: (id: string) => Promise<T | null>;
+  fetchFunction: (id: string) => Promise<T>;
   /** Callback to run when `fetchFunction` is invoked for a key */
   onKeyFetch?: (key: string) => void | Promise<void>;
   /** Callback to run when `fetchFunction` ran successfully */
@@ -21,7 +21,7 @@ export interface AsyncTTLCacheManagerOptions<T> extends TTLCacheManagerOptions {
 }
 
 export class AsyncTTLCacheManager<T> extends TTLCacheManager<T> {
-  fetchFunction: (id: string) => Promise<T | null>;
+  fetchFunction: (id: string) => Promise<T>;
   onKeyFetch?: (key: string) => void | Promise<void>;
   onKeyFetchSuccess?: (
     key: string,
@@ -56,8 +56,7 @@ export class AsyncTTLCacheManager<T> extends TTLCacheManager<T> {
     if (options.onKeyFetchFail) this.onKeyFetchFail = options.onKeyFetchFail;
   }
 
-  // [DEV] - Add overload to remove null from return type
-  async getWithFetch(id: string): Promise<T | null> {
+  async getWithFetch(id: string): Promise<T> {
     const cached = super.get(id);
     if (cached) {
       this.cacheHits++;
@@ -80,11 +79,11 @@ export class AsyncTTLCacheManager<T> extends TTLCacheManager<T> {
     this.fetchAverageMs =
       this.fetchTotalMs / (this.fetchHits + this.fetchMisses);
 
-    if (data === null) {
+    if (data === null || typeof data === 'undefined') {
       if (typeof this.onKeyFetchFail === 'function')
         this.onKeyFetchFail(id, start, end);
       this.fetchMisses++;
-      return null;
+      return data;
     }
     if (typeof this.onKeyFetchSuccess === 'function') {
       this.onKeyFetchSuccess(id, start, end);
@@ -94,7 +93,7 @@ export class AsyncTTLCacheManager<T> extends TTLCacheManager<T> {
     return data;
   }
 
-  async getManyWithFetch(ids: string[]): Promise<(T | null)[]> {
+  async getManyWithFetch(ids: string[]): Promise<(T)[]> {
     return Promise.all(ids.map((id) => this.getWithFetch(id)));
   }
 }
