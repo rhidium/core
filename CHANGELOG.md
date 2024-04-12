@@ -1,3 +1,15 @@
+## [2.0.2](https://github.com/rhidium/core/compare/v2.0.1...v2.0.2) (2024-04-12)
+
+
+### Bug Fixes
+
+* force release ([9368b40](https://github.com/rhidium/core/commit/9368b405af101360bcc59c09b8245a8b25ebe2dd))
+
+
+### Reverts
+
+* fix: force release ([140f1b2](https://github.com/rhidium/core/commit/140f1b2041e5d31774862b15fa3d5430ef31223d))
+
 ## [2.0.1](https://github.com/rhidium/core/compare/v2.0.0...v2.0.1) (2024-04-12)
 
 
