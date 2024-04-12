@@ -1,3 +1,25 @@
+# [2.0.0](https://github.com/rhidium/core/compare/v1.7.0...v2.0.0) (2024-04-12)
+
+
+### Bug Fixes
+
+* **AsyncTTLCacheManager:** dont force Nullable T datatype ([044396c](https://github.com/rhidium/core/commit/044396c19f67ab973c2e4efa2c3490dcf53f7957))
+
+
+### Build System
+
+* **deps:** bump deps to latest ([0ebb7b0](https://github.com/rhidium/core/commit/0ebb7b0df90b86e5933ea3e8824d7dc6836c3433))
+
+
+### Features
+
+* pagination for category embed(s) ([46f87ad](https://github.com/rhidium/core/commit/46f87ad9b58170cbf0785a51fdedf125e19741b2))
+
+
+### BREAKING CHANGES
+
+* **deps:** This commit marks the start of v2 - yay!
+
 # [1.7.0](https://github.com/rhidium/core/compare/v1.6.1...v1.7.0) (2024-04-12)
 
 
