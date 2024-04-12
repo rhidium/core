@@ -41,7 +41,7 @@ import {
   Directories,
   InteractionUtils,
 } from '..';
-import { initializeLocalization } from '../i18n/i18n';
+import { initializeLocalization, locales } from '../i18n/i18n';
 
 export type ClientWithCluster<Ready extends boolean = boolean> = Client<Ready> & {
   cluster: ClusterClient<Client>
@@ -199,7 +199,7 @@ export class Client<Ready extends boolean = boolean> extends DiscordClient<Ready
     });
 
     this.I18N = options.I18N ?? I18N;
-    this.locales = options.locales ?? ['en-US'];
+    this.locales = options.locales ?? locales;
 
     initializeLocalization(this.I18N);
 
