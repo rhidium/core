@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/rhidium/core/compare/v1.6.0...v1.6.1) (2024-04-12)
+
+
+### Bug Fixes
+
+* test commit, force release ([77a512c](https://github.com/rhidium/core/commit/77a512c47e813fb17aa708c6cca6fc53dcfd4dff))
+
 # [1.6.0](https://github.com/rhidium/core/compare/v1.5.6...v1.6.0) (2024-04-12)
 
 
