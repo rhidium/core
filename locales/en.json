@@ -2,6 +2,7 @@
   "invalidUser": "Invalid user",
   "timestampName": "Timestamp",
   "commands": {
+    "onCooldown": "You are on cooldown (type {{type}}) for this command - please wait **{{expiresIn}}** before using this command again",
     "unknownCommandTitle": "Unknown Command",
     "unknownCommandDescription": "The command with id \"{{commandId}}\" was not found",
     "commandDisabledTitle": "Command Disabled",

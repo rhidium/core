@@ -10,22 +10,17 @@ export const englishLibrary = enLib;
 export const dutchLibrary = nlLib;
 
 export type ResourceBundle = {
-  lng: string;
-  ns: string;
+  lng: LocaleString;
   resources: typeof enLib;
-  deep?: boolean;
-  overwrite?: boolean;
 };
 
 export const defaultResourceBundles = [
   {
-    lng: 'en',
-    ns: 'lib',
+    lng: locales[0] as LocaleString,
     resources: englishLibrary,
   },
   {
-    lng: 'nl',
-    ns: 'lib',
+    lng: locales[1] as LocaleString,
     resources: dutchLibrary,
   },
 ];
@@ -40,15 +35,15 @@ export const initializeLocalization = (
     resourceBundles.forEach((bundle) => {
       clientLang.addResourceBundle(
         bundle.lng,
-        bundle.ns,
+        defaultNS,
         bundle.resources,
-        bundle.deep,
-        bundle.overwrite ?? true
+        true,
+        true
       );
     });
   }
   else {
-    clientLang.addResourceBundle('en', defaultNS, englishLibrary);
+    clientLang.addResourceBundle('en-GB', defaultNS, englishLibrary);
     clientLang.addResourceBundle('nl', defaultNS, dutchLibrary);
   }
 };

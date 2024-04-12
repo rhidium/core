@@ -2,6 +2,7 @@
   "invalidUser": "Ongeldige gebruiker",
   "timestampName": "Tijdstempel",
   "commands": {
+    "onCooldown": "Je bent nog in cooldown (type {{type}}) voor dit commando - wacht alsjeblieft **{{expiresIn}}** voordat je het opnieuw probeert.",
     "unknownCommandTitle": "Onbekend Command",
     "unknownCommandDescription": "Geen command met id \"{{commandId}}\" gevonden",
     "commandDisabledTitle": "Command Niet Actief",
