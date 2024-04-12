@@ -1,3 +1,11 @@
+## [2.0.1](https://github.com/rhidium/core/compare/v2.0.0...v2.0.1) (2024-04-12)
+
+
+### Bug Fixes
+
+* **docs:** temporarily disable typedoc-plugin-djs-links ([6c89e5d](https://github.com/rhidium/core/commit/6c89e5d61023fa95a6383a626215c05d3bd2f1c1))
+* update husky implementation to latest ([73fd9fc](https://github.com/rhidium/core/commit/73fd9fc1db7b2fd11fa5302a0e4307c000d1d32f))
+
 # [2.0.0](https://github.com/rhidium/core/compare/v1.7.0...v2.0.0) (2024-04-12)
 
 
