@@ -43,7 +43,7 @@ export const initializeLocalization = (
         bundle.ns,
         bundle.resources,
         bundle.deep,
-        bundle.overwrite,
+        bundle.overwrite ?? true
       );
     });
   }
