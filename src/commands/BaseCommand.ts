@@ -360,6 +360,7 @@ export class BaseCommand<
         if (
           this.permLevel >= PermLevel.Administrator
           && this.client.extendedOptions.defaultLockMemberPermissions
+          && 'default_member_permissions' in this.data
           && typeof this.data.default_member_permissions === 'undefined'
         ) this.data.setDefaultMemberPermissions(0);
 

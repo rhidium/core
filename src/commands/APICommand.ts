@@ -2,12 +2,15 @@ import {
   BaseInteraction,
   ContextMenuCommandBuilder,
   SlashCommandBuilder,
+  SlashCommandOptionsOnlyBuilder,
+  SlashCommandSubcommandsOnlyBuilder,
 } from 'discord.js';
 import { BaseCommand, BaseCommandOptions } from './BaseCommand';
 
-// This is the builder variant, not API - temporarily disabled
-export type APICommandData =
+export type APISlashCommandData = 
   | SlashCommandBuilder
+  | SlashCommandOptionsOnlyBuilder
+  | SlashCommandSubcommandsOnlyBuilder
   | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>
   | Omit<
     SlashCommandBuilder,
@@ -21,7 +24,8 @@ export type APICommandData =
     | 'addIntegerOption'
     | 'addNumberOption'
   >
-  | ContextMenuCommandBuilder;
+
+export type APICommandData = APISlashCommandData | ContextMenuCommandBuilder;
 
 export interface APICommandOptions<
   I extends BaseInteraction = BaseInteraction,

@@ -1,26 +1,12 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
-import { APICommand, APICommandOptions } from './APICommand';
+import { ChatInputCommandInteraction } from 'discord.js';
+import { APICommand, APICommandOptions, APISlashCommandData } from './APICommand';
 
 export interface ChatInputCommandOptions<
   I extends ChatInputCommandInteraction = ChatInputCommandInteraction,
 >
   extends APICommandOptions<I> {
   /** Command data to send off to the Discord API, resolved by builder */
-  data:
-    | SlashCommandBuilder
-    | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>
-    | Omit<
-      SlashCommandBuilder,
-      | 'addBooleanOption'
-      | 'addUserOption'
-      | 'addChannelOption'
-      | 'addRoleOption'
-      | 'addAttachmentOption'
-      | 'addMentionableOption'
-      | 'addStringOption'
-      | 'addIntegerOption'
-      | 'addNumberOption'
-    >;
+  data: APISlashCommandData;
 }
 
 /**
@@ -32,21 +18,7 @@ export class ChatInputCommand<
   extends APICommand<I>
   implements ChatInputCommandOptions<I>
 {
-  override data:
-    | SlashCommandBuilder
-    | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>
-    | Omit<
-        SlashCommandBuilder,
-        | 'addBooleanOption'
-        | 'addUserOption'
-        | 'addChannelOption'
-        | 'addRoleOption'
-        | 'addAttachmentOption'
-        | 'addMentionableOption'
-        | 'addStringOption'
-        | 'addIntegerOption'
-        | 'addNumberOption'
-      >;
+  override data: APISlashCommandData;
 
   constructor(options: ChatInputCommandOptions<I>) {
     super(options);
