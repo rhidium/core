@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/rhidium/core/compare/v2.0.2...v2.1.0) (2024-05-15)
+
+
+### Features
+
+* update to discord.js@14.15.2 ([86178c4](https://github.com/rhidium/core/commit/86178c4c571ae9793e04b5cd918bda14c605ef8a))
+
 ## [2.0.2](https://github.com/rhidium/core/compare/v2.0.1...v2.0.2) (2024-04-12)
 
 
