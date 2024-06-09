@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/rhidium/core/compare/v2.1.1...v2.1.2) (2024-06-09)
+
+
+### Bug Fixes
+
+* properly clear non-current environment commands ([db187e0](https://github.com/rhidium/core/commit/db187e02803e1e6226534f5d5d8c247487e1188a))
+
 ## [2.1.1](https://github.com/rhidium/core/compare/v2.1.0...v2.1.1) (2024-06-09)
 
 
