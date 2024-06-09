@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/rhidium/core/compare/v2.1.2...v2.1.3) (2024-06-09)
+
+
+### Bug Fixes
+
+* use PUT to delete commands ([c49036f](https://github.com/rhidium/core/commit/c49036fa0541f79da5405d8ae751d505c7866a8c))
+
 ## [2.1.2](https://github.com/rhidium/core/compare/v2.1.1...v2.1.2) (2024-06-09)
 
 
