@@ -190,6 +190,40 @@ export class CommandManager {
     return data;
   };
 
+  clearCommands = async (type: DeployCommandsType) => {
+    const route =
+      type === 'global'
+        ? Routes.applicationCommands(this.client.applicationId)
+        : (() => {
+          if (!this.client.extendedOptions.developmentServerId) {
+            this.client.logger.warn(
+              'No development server id provided, skipping development command clear.',
+            );
+            return null;
+          }
+          return Routes.applicationGuildCommands(
+            this.client.applicationId,
+            this.client.extendedOptions.developmentServerId,
+          );
+        })();
+
+    if (!route) return;
+
+    this.client.logger.info(
+      `Started clearing ${type} application (/) commands.`,
+    );
+
+    const data = await this.rest.delete(route, {
+      body: [],
+    });
+
+    this.client.logger.success(
+      `Successfully cleared ${type} application (/) commands.`,
+    );
+
+    return data;
+  };
+
   debugAPICommandData = (
     type: DeployCommandsType,
     commands: APICommandData[],
@@ -278,22 +312,12 @@ export class CommandManager {
       this.debugAPICommandData(options.type, commands);
     }
 
-    // Clear global commands in development mode
+    // Clear commands belonging to the opposite type
     if (options.type === 'development') {
-      this.putCommands(
-        Routes.applicationCommands(this.client.applicationId),
-        [],
-        'global',
-      );
+      this.clearCommands('global');
     }
-    // Clear development commands in global mode
-    // Preventing duplicate commands in the official/support server
     else if (options.guildId) {
-      this.putCommands(
-        Routes.applicationGuildCommands(this.client.applicationId, options.guildId),
-        [],
-        'development',
-      );
+      this.clearCommands('development');
     }
 
     // Return success
