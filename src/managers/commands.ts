@@ -213,7 +213,7 @@ export class CommandManager {
       `Started clearing ${type} application (/) commands.`,
     );
 
-    const data = await this.rest.delete(route, {
+    const data = await this.rest.put(route, {
       body: [],
     });
 
