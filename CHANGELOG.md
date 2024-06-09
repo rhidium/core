@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/rhidium/core/compare/v2.1.0...v2.1.1) (2024-06-09)
+
+
+### Bug Fixes
+
+* clean up commands that arent active in the current environment ([234260e](https://github.com/rhidium/core/commit/234260e502e607565fe37deb9f3ddff0e50f9ebb))
+
 # [2.1.0](https://github.com/rhidium/core/compare/v2.0.2...v2.1.0) (2024-05-15)
 
 
