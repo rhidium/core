@@ -69,7 +69,7 @@ export interface DeployCommandsResult {
 
 export type DeployCommandsType = 'global' | 'development';
 export type DeployCommandsOptions = FetchApplicationCommandOptions &
-  ({ type: 'global' } | { type: 'development'; guildId: Snowflake });
+  ({ type: 'global'; guildId?: Snowflake; } | { type: 'development'; guildId: Snowflake });
 
 export interface CommandManagerCommandsOptions {
   /** Absolute or relative path(s) to the folders/directories that hold your client listeners */
@@ -278,11 +278,21 @@ export class CommandManager {
       this.debugAPICommandData(options.type, commands);
     }
 
+    // Clear global commands in development mode
     if (options.type === 'development') {
       this.putCommands(
         Routes.applicationCommands(this.client.applicationId),
         [],
         'global',
+      );
+    }
+    // Clear development commands in global mode
+    // Preventing duplicate commands in the official/support server
+    else if (options.guildId) {
+      this.putCommands(
+        Routes.applicationGuildCommands(this.client.applicationId, options.guildId),
+        [],
+        'development',
       );
     }
 
@@ -680,7 +690,7 @@ export class CommandManager {
   ): DeployCommandsOptions => {
     const options =
       process.env.NODE_ENV === 'production'
-        ? { type: 'global' }
+        ? { type: 'global', guildId }
         : guildId
           ? { type: 'development', guildId }
           : null;
