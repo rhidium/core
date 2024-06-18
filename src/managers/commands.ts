@@ -1075,9 +1075,14 @@ export class CommandManager {
    * Tries to display commands using Discord's built-in
    * clickable command links, uses default name if otherwise
    */
-  commandLink = async (cmdName: string) => {
+  commandLink = async (cmdName: string, subCmdName?: string) => {
     const apiCommandData = await this.commandAPIData();
     const apiCmd = apiCommandData?.find((e) => e.name === cmdName);
+    if (subCmdName) {
+      return apiCmd
+        ? `</${cmdName} ${subCmdName}:${apiCmd.id}>`
+        : `**\`/${cmdName} ${subCmdName}\`**`;
+    }
     return apiCmd ? `</${cmdName}:${apiCmd.id}>` : `**\`/${cmdName}\`**`;
   };
 
