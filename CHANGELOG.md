@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/rhidium/core/compare/v2.1.3...v2.2.0) (2024-06-18)
+
+
+### Features
+
+* allow subcommands in commandLink fn ([231422f](https://github.com/rhidium/core/commit/231422fbbd8b7a9c4eba2a287fa42ce3a88b9cde))
+
 ## [2.1.3](https://github.com/rhidium/core/compare/v2.1.2...v2.1.3) (2024-06-09)
 
 
